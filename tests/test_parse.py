@@ -21,19 +21,19 @@ def test_parse1():
 
     root = h.fromfile(StringIO('<html><body/></html>'))
     assert isinstance(root, html.Tag)
-    assert root.tostring() == '<html><body></body></html>'
+    assert root.tostring() == b'<html><body></body></html>'
 
     root = h.fromfile(StringIO('<html><body/></html>'), xml.Tag)
     assert isinstance(root, xml.Tag)
-    assert root.tostring() == '<html><body/></html>'
+    assert root.tostring() == b'<html><body/></html>'
 
     root = h.fromstring('<html><body/></html>')
     assert isinstance(root, html.Tag)
-    assert root.tostring() == '<html><body></body></html>'
+    assert root.tostring() == b'<html><body></body></html>'
 
     root = h.fromstring('<html><body/></html>', xml.Tag)
     assert isinstance(root, xml.Tag)
-    assert root.tostring() == '<html><body/></html>'
+    assert root.tostring() == b'<html><body/></html>'
 
 
 def test_parse2():
@@ -41,16 +41,16 @@ def test_parse2():
 
     root = h.fromfile(StringIO('<html><body/></html>'))
     assert isinstance(root, html.Tag)
-    assert root.tostring() == '<html><body></body></html>'
+    assert root.tostring() == b'<html><body></body></html>'
 
     root = h.fromfile(StringIO('<html><body/></html>'), xml.Tag)
     assert isinstance(root, xml.Tag)
-    assert root.tostring() == '<html><body/></html>'
+    assert root.tostring() == b'<html><body/></html>'
 
     root = h.fromstring('<html><body/></html>')
     assert isinstance(root, html.Tag)
-    assert root.tostring() == '<html><body></body></html>'
+    assert root.tostring() == b'<html><body></body></html>'
 
     root = h.fromstring('<html><body/></html>', xml.Tag)
     assert isinstance(root, xml.Tag)
-    assert root.tostring() == '<html><body/></html>'
+    assert root.tostring() == b'<html><body/></html>'

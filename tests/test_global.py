@@ -11,12 +11,11 @@ from nagare.renderers import html_base as html
 from nagare.renderers import html5_base as html5
 
 
-RESULT = '''
+RESULT = b'''
 <html>
     <head>
         <title>A test</title>
         <script>function() {}</script>
-        <meta content="content1" name="meta1">
     </head>
     <body onload="javascript:alert()">
         %s
@@ -55,7 +54,6 @@ def test_html():
 
     h.head << h.head.title('A test')
     h.head << h.head.script('function() {}')
-    h.head << h.head.meta(name='meta1', content='content1')
 
     with h.body(onload='javascript:alert()'):
         with h.ul:
@@ -83,8 +81,8 @@ def test_html():
 
     root = h.html(h.head.head(h.head.root), h.root)
 
-    result = RESULT % ''
-    result = ''.join(line.strip() for line in result.splitlines())
+    result = RESULT % b''
+    result = b''.join(line.strip() for line in result.splitlines())
 
     assert root.tostring() == result
 
@@ -96,7 +94,6 @@ def test_html5():
 
     h.head << h.head.title('A test')
     h.head << h.head.script('function() {}')
-    h.head << h.head.meta(name='meta1', content='content1')
 
     with h.body(onload='javascript:alert()'):
         h << h.section(name='name')
@@ -153,12 +150,14 @@ def test_html5():
     root = h.html(h.head.head(h.head.root), h.root)
 
     result = [
-        '<%s></%s>' % (tag, tag) for tag in 'article aside hgroup header footer nav figure '
-        'video audio source embed mark progress meter ruby rt '
-        'rp wbr canvas command details summary datalist keygen output'.split()
+        b'<%s></%s>' % (tag, tag) for tag in b'article aside hgroup header footer nav figure '
+        b'video audio source embed mark progress meter ruby rt '
+        b'rp wbr canvas command details summary datalist keygen output'.split()
     ]
 
-    result = RESULT % ('<section name="name"></section>' + ''.join(result))
-    result = ''.join(line.strip() for line in result.splitlines())
+    result = RESULT % (b'<section name="name"></section>' + b''.join(result))
+    result = b''.join(line.strip() for line in result.splitlines())
 
+    print(root.tostring())
+    print(result)
     assert root.tostring() == result
