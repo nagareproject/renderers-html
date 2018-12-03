@@ -43,20 +43,20 @@ focusattrs = {'accesskey', 'tabindex', 'onfocus', 'onblur'}
 # ---------------------------------------------------------------------------
 
 
-def absolute_url(url, static, **params):
+def absolute_url(url, url_prefix, always_relative=False, **params):
     """Convert a relative URL of a static content to an absolute one
 
     In:
       - ``url`` -- url to convert
-      - ``static`` -- URL prefix of the static contents
+      - ``url_prefix`` -- URL prefix of the static contents
 
     Return:
       - an absolute URL
     """
     parts = list(urlparse.urlparse(url))
 
-    if not parts[2].startswith('/'):
-        parts[2] = path.join(static or '', parts[2])
+    if always_relative or not parts[2].startswith('/'):
+        parts[2] = path.join(url_prefix or '', parts[2].lstrip('/'))
         parts[4] = (parts[4] + '&' + '&'.join('%s=%s' % param for param in params.items())).lstrip('&')
 
         url = urlparse.urlunparse(parts)
@@ -101,20 +101,18 @@ class HrefAttribute(Tag):
         url = self.get(self.ASSET_ATTR, None)
         if url is not None:
             self.set(self.ASSET_ATTR, self.renderer.absolute_assets_url(url))
+Base = Link = A = Area = HrefAttribute  # noqa: E305
 
 
 class SrcAttribute(HrefAttribute):
     ASSET_ATTR = 'src'
+IFrame = Input = Script = SrcAttribute  # noqa: E305
 
 
-class Img(Tag):
+class Img(SrcAttribute):
 
     def on_change(self):
         super(Img, self).on_change()
-
-        url = self.get('src', None)
-        if url is not None:
-            self.set('src', self.renderer.absolute_assets_url(url))
 
         url = self.get('lowsrc', None)
         if url is not None:
@@ -130,9 +128,9 @@ class HeadRenderer(xml.XmlRenderer):
     # Tag factories
     # -------------
 
-    base = TagProp('base', {'id', 'href', 'target'}, HrefAttribute)
+    base = TagProp('base', {'id', 'href', 'target'}, Base)
     head = TagProp('head', i18nattrs | {'id', 'profile'})
-    link = TagProp('link', allattrs | {'charset', 'href', 'hreflang', 'type', 'rel', 'rev', 'media', 'target'}, HrefAttribute)
+    link = TagProp('link', allattrs | {'charset', 'href', 'hreflang', 'type', 'rel', 'rev', 'media', 'target'}, Link)
     meta = TagProp('meta', i18nattrs | {'id', 'http_equiv', 'name', 'content', 'scheme'})
     title = TagProp('title', i18nattrs | {'id'})
     style = TagProp('style', i18nattrs | {'id', 'media', 'type'})
@@ -159,8 +157,8 @@ class HeadRenderer(xml.XmlRenderer):
     def fromstring(self, text, tags_factory=Tag, fragment=False, no_leading_text=False, **kw):
         return super(HeadRenderer, self).fromstring(text, tags_factory, fragment, no_leading_text, **kw)
 
-    def absolute_url(self, url, static=None, **params):
-        return absolute_url(url, static if static is not None else self.static_url, **params)
+    def absolute_url(self, url, url_prefix=None, always_relative=False, **params):
+        return absolute_url(url, url_prefix if url_prefix is not None else self.static_url, always_relative, **params)
 
     def absolute_assets_url(self, url, static=None, **params):
         if self.assets_version:
@@ -171,6 +169,7 @@ class HeadRenderer(xml.XmlRenderer):
 
 class Renderer(xml.XmlRenderer):
     doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">'
+    content_type = 'text/html'
     head_renderer_factory = HeadRenderer
 
     componentattrs = {'id', 'class', 'style', 'title'}
@@ -190,7 +189,7 @@ class Renderer(xml.XmlRenderer):
     a = TagProp('a', allattrs | focusattrs | {
         'charset', 'type', 'name', 'href', 'hreflang', 'rel',
         'rev', 'shape', 'coords', 'target', 'oncontextmenu'
-    }, HrefAttribute)
+    }, A)
     abbr = TagProp('abbr', allattrs)
     acronym = TagProp('acronym', allattrs)
     address = TagProp('address', allattrs)
@@ -198,7 +197,7 @@ class Renderer(xml.XmlRenderer):
         'codebase', 'archive', 'code', 'object', 'alt', 'name', 'width',
         'height', 'align', 'hspace', 'vspace'
     })
-    area = TagProp('area', allattrs | focusattrs | {'shape', 'coords', 'href', 'nohref', 'alt', 'target'}, HrefAttribute)
+    area = TagProp('area', allattrs | focusattrs | {'shape', 'coords', 'href', 'nohref', 'alt', 'target'}, Area)
     b = TagProp('b', allattrs)
     basefont = TagProp('basefont', componentattrs | i18nattrs | {'id', 'size', 'color', 'face'})
     bdo = TagProp('bdo', componentattrs | eventattrs | {'lang', 'dir'})
@@ -251,7 +250,7 @@ class Renderer(xml.XmlRenderer):
     iframe = TagProp('iframe', componentattrs | {
         'longdesc', 'name', 'src', 'frameborder', 'marginwidth', 'marginheight',
         'noresize', 'scrolling', 'align', 'height', 'width', 'hspace', 'vspace', 'bordercolor',
-    }, SrcAttribute)
+    }, IFrame)
     img = TagProp('img', allattrs | {
         'src', 'alt', 'name', 'longdesc', 'width', 'height', 'usemap',
         'ismap', 'align', 'border', 'hspace', 'vspace', 'lowsrc'
@@ -259,7 +258,7 @@ class Renderer(xml.XmlRenderer):
     input = TagProp('input', allattrs | focusattrs | {
         'type', 'name', 'value', 'checked', 'disabled', 'readonly', 'size', 'maxlength',
         'src', 'alt', 'usemap', 'onselect', 'onchange', 'accept', 'align', 'border'
-    }, SrcAttribute)
+    }, Input)
     ins = TagProp('ins', allattrs | {'cite', 'datetime'})
     isindex = TagProp('isindex', componentattrs | i18nattrs | {'prompt'})
     kbd = TagProp('kbd', allattrs)
@@ -284,7 +283,7 @@ class Renderer(xml.XmlRenderer):
     q = TagProp('q', allattrs | {'cite'})
     s = TagProp('s', allattrs)
     samp = TagProp('samp', allattrs)
-    script = TagProp('script', {'id', 'charset', 'type', 'language', 'src', 'defer'}, SrcAttribute)
+    script = TagProp('script', {'id', 'charset', 'type', 'language', 'src', 'defer'}, Script)
     select = TagProp('select', allattrs | {
         'name', 'size', 'multiple', 'disabled', 'tabindex',
         'onfocus', 'onblur', 'onchange', 'rows'
@@ -337,7 +336,7 @@ class Renderer(xml.XmlRenderer):
         if parent:
             self.head = parent.head
         else:
-            self.head = self.head_renderer_factory and self.head_renderer_factory(**kw)
+            self.head = self.head_renderer_factory(**kw)
 
     def fromfile(self, source, tags_factory=Tag, fragment=False, no_leading_text=False, **kw):
         return super(Renderer, self).fromfile(source, tags_factory, fragment, no_leading_text, **kw)
