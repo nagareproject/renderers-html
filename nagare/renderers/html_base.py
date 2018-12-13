@@ -19,6 +19,7 @@ try:
 except ImportError:
     import urllib.parse as urlparse
 from os import path
+from collections import OrderedDict
 
 from lxml import etree as ET
 
@@ -151,6 +152,11 @@ class HeadRenderer(xml.XmlRenderer):
         self.static_url = static_url
         self.assets_version = assets_version
 
+        self._named_css = OrderedDict()  # CSS code
+        self._css_url = OrderedDict()  # CSS URLs
+        self._named_javascript = OrderedDict()  # Javascript code
+        self._javascript_url = OrderedDict()  # Javascript URLs
+
     def fromfile(self, source, tags_factory=Tag, fragment=False, no_leading_text=False, **kw):
         return super(HeadRenderer, self).fromfile(source, tags_factory, fragment, no_leading_text, **kw)
 
@@ -165,6 +171,81 @@ class HeadRenderer(xml.XmlRenderer):
             params.setdefault('ver', self.assets_version)
 
         return self.absolute_url(url, static, **params)
+
+    def css(self, id_, style, **attributes):
+        """Memorize an in-line named css style
+
+        In:
+          - ``id_`` -- unique id of this css style (to prevent double definition)
+          - ``style`` -- the css style
+          - ``attributes`` -- attributes of the generated ``<style>`` tag
+        """
+        self._named_css.setdefault(id_, (style, attributes))
+
+    def css_url(self, url, **attributes):
+        """Memorize a css style URL
+
+        In:
+          - ``url`` -- the css style URL
+          - ``attributes`` -- attributes of the generated ``<link>`` tag
+        """
+        self._css_url.setdefault(url, attributes)
+
+    def javascript(self, id_, script, **attributes):
+        """Memorize an in-line named javascript code
+
+        In:
+          - ``id_`` -- unique id of this javascript code (to prevent double definition)
+          - ``script`` -- the javascript code
+          - ``attributes`` -- attributes of the generated ``<script>`` tag
+        """
+        self._named_javascript.setdefault(id_, (script, attributes))
+
+    def javascript_url(self, url, **attributes):
+        """Memorize a javascript URL
+
+        In:
+          - ``url`` -- the javascript URL
+          - ``attributes`` -- attributes of the the generated ``<script>`` tag
+
+        Return:
+          - ``()``
+        """
+        self._javascript_url.setdefault(url, attributes)
+
+    def render(self):
+        # Create the tags to include the CSS styles and the javascript codes
+        head = self.root
+
+        if isinstance(head, ET.ElementBase) and (head.tag == 'head'):
+            # If a ``<head>`` tag already exist, take its content
+            head = self.head(head[:], dict(head.attrib))
+        else:
+            head = self.head(head)
+
+        head.extend(
+            self.link(rel='stylesheet', type='text/css', href=url, **attributes)
+            for url, attributes
+            in self._css_url.items()
+        )
+        head.extend(
+            self.script(type='text/javascript', src=url, **attributes)
+            for url, attributes
+            in self._javascript_url.items()
+        )
+
+        head.extend(
+            self.style(css, type='text/css', data_nagare_css=name, **attributes)
+            for name, (css, attributes)
+            in self._named_css.items()
+        )
+        head.extend(
+            self.script(js, type='text/javascript', data_nagare_js=name, **attributes)
+            for name, (js, attributes)
+            in self._named_javascript.items()
+        )
+
+        return head
 
 
 class Renderer(xml.XmlRenderer):
