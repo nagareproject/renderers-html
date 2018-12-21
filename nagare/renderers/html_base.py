@@ -56,8 +56,10 @@ def absolute_url(url, url_prefix, always_relative=False, **params):
     """
     parts = list(urlparse.urlparse(url))
 
-    if always_relative or not parts[2].startswith('/'):
-        parts[2] = path.join(url_prefix or '', parts[2].lstrip('/'))
+    if not parts[0]:
+        if always_relative or not parts[2].startswith('/'):
+            parts[2] = path.join(url_prefix or '', parts[2].lstrip('/'))
+
         parts[4] = (parts[4] + '&' + '&'.join('%s=%s' % param for param in params.items())).lstrip('&')
 
         url = urlparse.urlunparse(parts)
@@ -189,7 +191,7 @@ class HeadRenderer(xml.XmlRenderer):
           - ``url`` -- the css style URL
           - ``attributes`` -- attributes of the generated ``<link>`` tag
         """
-        self._css_url.setdefault(url, attributes)
+        self._css_url.setdefault(self.absolute_assets_url(url), attributes)
 
     def javascript(self, id_, script, **attributes):
         """Memorize an in-line named javascript code
@@ -211,7 +213,7 @@ class HeadRenderer(xml.XmlRenderer):
         Return:
           - ``()``
         """
-        self._javascript_url.setdefault(url, attributes)
+        self._javascript_url.setdefault(self.absolute_assets_url(url), attributes)
 
     def render(self):
         # Create the tags to include the CSS styles and the javascript codes

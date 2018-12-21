@@ -20,7 +20,14 @@ def test_html1():
         h.foo
 
 
-def test_head2():
+def test_head():
+    """ XHTML namespace unit test - HTMLRender - init - test if head exists """
+    h = html.Renderer()
+    assert hasattr(h, 'head')
+    assert isinstance(h.head, html.HeadRenderer)
+
+
+def test_xml():
     h = html.Renderer()
 
     assert h.p.tostring() == b'<p></p>'
@@ -112,17 +119,35 @@ def test_url():
 def test_cache_buster():
     h = html.Renderer(assets_version='1.2')
 
-    assert h.a(href='/abc').tostring() == b'<a href="/abc"></a>'
+    assert h.a(href='/abc').tostring() == b'<a href="/abc?ver=1.2"></a>'
     assert h.a(href='abc').tostring() == b'<a href="abc?ver=1.2"></a>'
 
     h = html.Renderer(static_url='/root', assets_version='1.2')
 
-    assert h.a(href='/abc').tostring() == b'<a href="/abc"></a>'
+    assert h.a(href='/abc').tostring() == b'<a href="/abc?ver=1.2"></a>'
     assert h.a(href='abc').tostring() == b'<a href="/root/abc?ver=1.2"></a>'
 
     h = html.Renderer(static_url='/root', assets_version='1.2')
 
-    assert h.a(href='/abc?foo=bar').tostring() == b'<a href="/abc?foo=bar"></a>'
+    assert h.a(href='/abc?foo=bar').tostring() == b'<a href="/abc?foo=bar&amp;ver=1.2"></a>'
     assert h.a(href='abc?foo=bar').tostring() == b'<a href="/root/abc?foo=bar&amp;ver=1.2"></a>'
-    assert h.a(href='/abc?foo=bar&hello=world').tostring() == b'<a href="/abc?foo=bar&amp;hello=world"></a>'
+    assert h.a(href='/abc?foo=bar&hello=world').tostring() == b'<a href="/abc?foo=bar&amp;hello=world&amp;ver=1.2"></a>'
     assert h.a(href='abc?foo=bar&hello=world').tostring() == b'<a href="/root/abc?foo=bar&amp;hello=world&amp;ver=1.2"></a>'
+
+
+def test_htmltag_write_xmlstring1():
+    h = html.Renderer()
+    h << h.table(h.tr(h.td()), h.tr(h.td()))
+    assert h.root.tostring() == b'<table><tr><td></td></tr><tr><td></td></tr></table>'
+
+
+def test_htmltag_write_xmlstring2():
+    h = html.Renderer()
+    h << h.table(h.tr(h.td().meld_id('test'), h.tr(h.td().meld_id('test'))))
+    assert h.root.tostring(pipeline=True) == b'<table><tr><td xmlns:ns0="http://www.plope.com/software/meld3" ns0:id="test"></td><tr><td xmlns:ns0="http://www.plope.com/software/meld3" ns0:id="test"></td></tr></tr></table>'
+
+
+def test_htmltag_write_xmlstring3():
+    h = html.Renderer()
+    h << h.table(h.tr(h.td().meld_id('false'), h.tr(h.td().meld_id('false'))))
+    assert h.root.tostring(pipeline=False) == b'<table><tr><td xmlns:ns0="http://www.plope.com/software/meld3"></td><tr><td xmlns:ns0="http://www.plope.com/software/meld3"></td></tr></tr></table>'

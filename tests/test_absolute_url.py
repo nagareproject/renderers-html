@@ -35,7 +35,7 @@ def test_absolute_url3():
     assert html.absolute_url('/', '/static/root') == '/'
     assert html.absolute_url('/abc', '/static/root') == '/abc'
 
-    assert html.absolute_url('http://abc', '/static/root') == 'http://abc/static/root/'
+    assert html.absolute_url('http://abc', '/static/root') == 'http://abc'
 
     assert html.absolute_url('abc', '') == 'abc'
     assert html.absolute_url('abc/', '') == 'abc/'
@@ -54,7 +54,7 @@ def test_absolute_url4():
     assert head.absolute_url('/', '/static/root') == '/'
     assert head.absolute_url('/abc', '/static/root') == '/abc'
 
-    assert head.absolute_url('http://abc', '/static/root') == 'http://abc/static/root/'
+    assert head.absolute_url('http://abc', '/static/root') == 'http://abc'
 
     assert head.absolute_url('abc', '') == 'abc'
     assert head.absolute_url('abc/', '') == 'abc/'
@@ -69,7 +69,7 @@ def test_absolute_url4():
     assert head.absolute_url('/') == '/'
     assert head.absolute_url('/abc') == '/abc'
 
-    assert head.absolute_url('http://abc') == 'http://abc/static/root2/'
+    assert head.absolute_url('http://abc') == 'http://abc'
 
     assert head.absolute_url('abc', '') == 'abc'
     assert head.absolute_url('abc/', '') == 'abc/'
@@ -88,7 +88,7 @@ def test_absolute_url5():
     assert h.absolute_url('/', '/static/root') == '/'
     assert h.absolute_url('/abc', '/static/root') == '/abc'
 
-    assert h.absolute_url('http://abc', '/static/root') == 'http://abc/static/root/'
+    assert h.absolute_url('http://abc', '/static/root') == 'http://abc'
 
     assert h.absolute_url('abc', '') == 'abc'
     assert h.absolute_url('abc/', '') == 'abc/'
@@ -103,7 +103,7 @@ def test_absolute_url5():
     assert h.absolute_url('/') == '/'
     assert h.absolute_url('/abc') == '/abc'
 
-    assert h.absolute_url('http://abc') == 'http://abc/static/root2/'
+    assert h.absolute_url('http://abc') == 'http://abc'
 
     assert h.absolute_url('abc', '') == 'abc'
     assert h.absolute_url('abc/', '') == 'abc/'

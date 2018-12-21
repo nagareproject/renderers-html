@@ -158,6 +158,4 @@ def test_html5():
     result = RESULT % (b'<section name="name"></section>' + b''.join(result))
     result = b''.join(line.strip() for line in result.splitlines())
 
-    print(root.tostring())
-    print(result)
     assert root.tostring() == result
