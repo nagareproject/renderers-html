@@ -37,26 +37,6 @@ def test_xml():
 def test_url():
     h = html.Renderer()
 
-    assert h.a(href='/abc').tostring() == b'<a href="/abc"></a>'
-    assert h.a(href='abc').tostring() == b'<a href="abc"></a>'
-
-    h = html.Renderer(static_url='/root')
-
-    assert h.a(href='/abc').tostring() == b'<a href="/abc"></a>'
-    assert h.a(href='abc').tostring() == b'<a href="/root/abc"></a>'
-
-    h = html.Renderer()
-
-    assert h.area(href='/abc').tostring() == b'<area href="/abc">'
-    assert h.area(href='abc').tostring() == b'<area href="abc">'
-
-    h = html.Renderer(static_url='/root')
-
-    assert h.area(href='/abc').tostring() == b'<area href="/abc">'
-    assert h.area(href='abc').tostring() == b'<area href="/root/abc">'
-
-    h = html.Renderer()
-
     assert h.embed(src='/abc').tostring() == b'<embed src="/abc"></embed>'
     assert h.embed(src='abc').tostring() == b'<embed src="abc"></embed>'
 
@@ -67,33 +47,13 @@ def test_url():
 
     h = html.Renderer()
 
-    assert h.iframe(src='/abc').tostring() == b'<iframe src="/abc"></iframe>'
-    assert h.iframe(src='abc').tostring() == b'<iframe src="abc"></iframe>'
+    assert h.img(src='/abc', lowsrc='/def').tostring() == b'<img src="/abc" lowsrc="/def">'
+    assert h.img(src='abc', lowsrc='def').tostring() == b'<img src="abc" lowsrc="def">'
 
     h = html.Renderer(static_url='/root')
 
-    assert h.iframe(src='/abc').tostring() == b'<iframe src="/abc"></iframe>'
-    assert h.iframe(src='abc').tostring() == b'<iframe src="/root/abc"></iframe>'
-
-    h = html.Renderer()
-
-    assert h.img(src='/abc').tostring() == b'<img src="/abc">'
-    assert h.img(src='abc').tostring() == b'<img src="abc">'
-
-    h = html.Renderer(static_url='/root')
-
-    assert h.img(src='/abc').tostring() == b'<img src="/abc">'
-    assert h.img(src='abc').tostring() == b'<img src="/root/abc">'
-
-    h = html.Renderer()
-
-    assert h.img(lowsrc='/abc').tostring() == b'<img lowsrc="/abc">'
-    assert h.img(lowsrc='abc').tostring() == b'<img lowsrc="abc">'
-
-    h = html.Renderer(static_url='/root')
-
-    assert h.img(lowsrc='/abc').tostring() == b'<img lowsrc="/abc">'
-    assert h.img(lowsrc='abc').tostring() == b'<img lowsrc="/root/abc">'
+    assert h.img(src='/abc', lowsrc='/def').tostring() == b'<img src="/abc" lowsrc="/def">'
+    assert h.img(src='abc', lowsrc='def').tostring() == b'<img src="/root/abc" lowsrc="/root/def">'
 
     h = html.Renderer()
 
@@ -104,6 +64,22 @@ def test_url():
 
     assert h.input(src='/abc').tostring() == b'<input src="/abc">'
     assert h.input(src='abc').tostring() == b'<input src="/root/abc">'
+
+    h = html.Renderer()
+
+    assert h.head.link(href='/abc').tostring() == b'<link href="/abc">'
+    assert h.head.link(href='abc').tostring() == b'<link href="abc">'
+
+    assert h.head.link(rel="stylesheet", href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
+    assert h.head.link(rel="stylesheet", href='abc').tostring() == b'<link rel="stylesheet" href="abc">'
+
+    h = html.Renderer(static_url='/root')
+
+    assert h.head.link(href='/abc').tostring() == b'<link href="/abc">'
+    assert h.head.link(href='abc').tostring() == b'<link href="abc">'
+
+    assert h.head.link(rel="stylesheet", href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
+    assert h.head.link(rel="stylesheet", href='abc').tostring() == b'<link rel="stylesheet" href="/root/abc">'
 
     h = html.Renderer()
 
@@ -119,20 +95,38 @@ def test_url():
 def test_cache_buster():
     h = html.Renderer(assets_version='1.2')
 
-    assert h.a(href='/abc').tostring() == b'<a href="/abc?ver=1.2"></a>'
-    assert h.a(href='abc').tostring() == b'<a href="abc?ver=1.2"></a>'
+    assert h.a(href='/abc').tostring() == b'<a href="/abc"></a>'
+    assert h.a(href='abc').tostring() == b'<a href="abc"></a>'
+
+    assert h.head.link(rel='stylesheet', href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
+    assert h.head.link(rel='stylesheet', href='abc').tostring() == b'<link rel="stylesheet" href="abc?ver=1.2">'
+
+    assert h.head.link(rel='next', href='/abc').tostring() == b'<link rel="next" href="/abc">'
+    assert h.head.link(rel='next', href='abc').tostring() == b'<link rel="next" href="abc">'
+
+    assert h.script(src='/abc').tostring() == b'<script src="/abc"></script>'
+    assert h.script(src='abc').tostring() == b'<script src="abc?ver=1.2"></script>'
 
     h = html.Renderer(static_url='/root', assets_version='1.2')
 
-    assert h.a(href='/abc').tostring() == b'<a href="/abc?ver=1.2"></a>'
-    assert h.a(href='abc').tostring() == b'<a href="/root/abc?ver=1.2"></a>'
+    assert h.a(href='/abc').tostring() == b'<a href="/abc"></a>'
+    assert h.a(href='abc').tostring() == b'<a href="abc"></a>'
+
+    assert h.head.link(rel='stylesheet', href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
+    assert h.head.link(rel='stylesheet', href='abc').tostring() == b'<link rel="stylesheet" href="/root/abc?ver=1.2">'
+
+    assert h.head.link(rel='next', href='/abc').tostring() == b'<link rel="next" href="/abc">'
+    assert h.head.link(rel='next', href='abc').tostring() == b'<link rel="next" href="abc">'
+
+    assert h.script(src='/abc').tostring() == b'<script src="/abc"></script>'
+    assert h.script(src='abc').tostring() == b'<script src="/root/abc?ver=1.2"></script>'
 
     h = html.Renderer(static_url='/root', assets_version='1.2')
 
-    assert h.a(href='/abc?foo=bar').tostring() == b'<a href="/abc?foo=bar&amp;ver=1.2"></a>'
-    assert h.a(href='abc?foo=bar').tostring() == b'<a href="/root/abc?foo=bar&amp;ver=1.2"></a>'
-    assert h.a(href='/abc?foo=bar&hello=world').tostring() == b'<a href="/abc?foo=bar&amp;hello=world&amp;ver=1.2"></a>'
-    assert h.a(href='abc?foo=bar&hello=world').tostring() == b'<a href="/root/abc?foo=bar&amp;hello=world&amp;ver=1.2"></a>'
+    assert h.script(src='/abc?foo=bar').tostring() == b'<script src="/abc?foo=bar"></script>'
+    assert h.script(src='abc?foo=bar').tostring() == b'<script src="/root/abc?foo=bar&amp;ver=1.2"></script>'
+    assert h.script(src='/abc?foo=bar&hello=world').tostring() == b'<script src="/abc?foo=bar&amp;hello=world"></script>'
+    assert h.script(src='abc?foo=bar&hello=world').tostring() == b'<script src="/root/abc?foo=bar&amp;hello=world&amp;ver=1.2"></script>'
 
 
 def test_htmltag_write_xmlstring1():

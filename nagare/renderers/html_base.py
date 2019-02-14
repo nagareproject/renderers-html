@@ -44,27 +44,45 @@ focusattrs = {'accesskey', 'tabindex', 'onfocus', 'onblur'}
 # ---------------------------------------------------------------------------
 
 
+class Url(object):
+
+    def __init__(self, url):
+        self.url = url
+        self.parts = list(urlparse.urlparse(url))
+
+    def is_url(self):
+        return bool(self.parts[0])
+
+    def is_absolute(self):
+        return self.parts[2].startswith('/')
+
+    def absolute(self, url_prefix, always_relative=False, **params):
+        """Convert a relative URL of a static content to an absolute one
+
+        In:
+        - ``url`` -- url to convert
+        - ``url_prefix`` -- URL prefix of the static contents
+
+        Return:
+        - an absolute URL
+        """
+        url = self.url
+
+        if not self.is_url():
+            if always_relative or not self.is_absolute():
+                self.parts[2] = path.join(url_prefix or '', self.parts[2].lstrip('/'))
+
+            if params:
+                self.parts[4] = (self.parts[4] + '&' + '&'.join('%s=%s' % param for param in params.items())).lstrip('&')
+
+            url = urlparse.urlunparse(self.parts)
+
+        return url
+
+
 def absolute_url(url, url_prefix, always_relative=False, **params):
-    """Convert a relative URL of a static content to an absolute one
-
-    In:
-      - ``url`` -- url to convert
-      - ``url_prefix`` -- URL prefix of the static contents
-
-    Return:
-      - an absolute URL
-    """
-    parts = list(urlparse.urlparse(url))
-
-    if not parts[0]:
-        if always_relative or not parts[2].startswith('/'):
-            parts[2] = path.join(url_prefix or '', parts[2].lstrip('/'))
-
-        parts[4] = (parts[4] + '&' + '&'.join('%s=%s' % param for param in params.items())).lstrip('&')
-
-        url = urlparse.urlunparse(parts)
-
-    return url
+    return Url(url).absolute(url_prefix, always_relative, **params)
+absolute_asset_url = absolute_url  # noqa: E305
 
 
 class Tag(xml.Tag):
@@ -98,18 +116,27 @@ class Tag(xml.Tag):
 class HrefAttribute(Tag):
     ASSET_ATTR = 'href'
 
+    def absolute_url(self, url):
+        return self.renderer.absolute_asset_url(url)
+
     def on_change(self):
         super(HrefAttribute, self).on_change()
 
         url = self.get(self.ASSET_ATTR, None)
         if url is not None:
-            self.set(self.ASSET_ATTR, self.renderer.absolute_assets_url(url))
-Base = Link = A = Area = HrefAttribute  # noqa: E305
+            self.set(self.ASSET_ATTR, self.absolute_url(url))
+
+
+class Link(HrefAttribute):
+
+    def on_change(self):
+        if self.get('rel', '') == 'stylesheet':
+            super(Link, self).on_change()
 
 
 class SrcAttribute(HrefAttribute):
     ASSET_ATTR = 'src'
-IFrame = Input = Script = SrcAttribute  # noqa: E305
+Embed = Input = Script = SrcAttribute  # noqa: E305
 
 
 class Img(SrcAttribute):
@@ -119,7 +146,7 @@ class Img(SrcAttribute):
 
         url = self.get('lowsrc', None)
         if url is not None:
-            self.set('lowsrc', self.renderer.absolute_assets_url(url))
+            self.set('lowsrc', self.renderer.absolute_asset_url(url))
 
 
 class HeadRenderer(xml.XmlRenderer):
@@ -131,13 +158,13 @@ class HeadRenderer(xml.XmlRenderer):
     # Tag factories
     # -------------
 
-    base = TagProp('base', {'id', 'href', 'target'}, Base)
+    base = TagProp('base', {'id', 'href', 'target'})
     head = TagProp('head', i18nattrs | {'id', 'profile'})
     link = TagProp('link', allattrs | {'charset', 'href', 'hreflang', 'type', 'rel', 'rev', 'media', 'target'}, Link)
     meta = TagProp('meta', i18nattrs | {'id', 'http_equiv', 'name', 'content', 'scheme'})
     title = TagProp('title', i18nattrs | {'id'})
     style = TagProp('style', i18nattrs | {'id', 'media', 'type'})
-    script = TagProp('script', i18nattrs | {'id', 'async', 'charset', 'defer', 'src', 'type'}, SrcAttribute)
+    script = TagProp('script', i18nattrs | {'id', 'async', 'charset', 'defer', 'src', 'type'}, Script)
 
     _parser = ET.HTMLParser()
     _parser.set_element_class_lookup(ET.ElementDefaultClassLookup(element=Tag))
@@ -165,14 +192,17 @@ class HeadRenderer(xml.XmlRenderer):
     def fromstring(self, text, tags_factory=Tag, fragment=False, no_leading_text=False, **kw):
         return super(HeadRenderer, self).fromstring(text, tags_factory, fragment, no_leading_text, **kw)
 
-    def absolute_url(self, url, url_prefix=None, always_relative=False, **params):
-        return absolute_url(url, url_prefix if url_prefix is not None else self.static_url, always_relative, **params)
+    @staticmethod
+    def absolute_url(url, url_prefix, always_relative=False, **params):
+        return absolute_url(url, url_prefix, always_relative, **params)
 
-    def absolute_assets_url(self, url, static=None, **params):
-        if self.assets_version:
+    def absolute_asset_url(self, url, static_prefix=None, always_relative=False, **params):
+        url = Url(url)
+
+        if self.assets_version and not url.is_absolute():
             params.setdefault('ver', self.assets_version)
 
-        return self.absolute_url(url, static, **params)
+        return url.absolute(static_prefix if static_prefix is not None else self.static_url, always_relative, **params)
 
     def css(self, id_, style, **attributes):
         """Memorize an in-line named css style
@@ -191,7 +221,7 @@ class HeadRenderer(xml.XmlRenderer):
           - ``url`` -- the css style URL
           - ``attributes`` -- attributes of the generated ``<link>`` tag
         """
-        self._css_url.setdefault(self.absolute_assets_url(url), attributes)
+        self._css_url.setdefault(self.absolute_asset_url(url), attributes)
 
     def javascript(self, id_, script, **attributes):
         """Memorize an in-line named javascript code
@@ -213,7 +243,7 @@ class HeadRenderer(xml.XmlRenderer):
         Return:
           - ``()``
         """
-        self._javascript_url.setdefault(self.absolute_assets_url(url), attributes)
+        self._javascript_url.setdefault(self.absolute_asset_url(url), attributes)
 
     def render(self):
         # Create the tags to include the CSS styles and the javascript codes
@@ -272,7 +302,7 @@ class Renderer(xml.XmlRenderer):
     a = TagProp('a', allattrs | focusattrs | {
         'charset', 'type', 'name', 'href', 'hreflang', 'rel',
         'rev', 'shape', 'coords', 'target', 'oncontextmenu'
-    }, A)
+    })
     abbr = TagProp('abbr', allattrs)
     acronym = TagProp('acronym', allattrs)
     address = TagProp('address', allattrs)
@@ -280,7 +310,7 @@ class Renderer(xml.XmlRenderer):
         'codebase', 'archive', 'code', 'object', 'alt', 'name', 'width',
         'height', 'align', 'hspace', 'vspace'
     })
-    area = TagProp('area', allattrs | focusattrs | {'shape', 'coords', 'href', 'nohref', 'alt', 'target'}, Area)
+    area = TagProp('area', allattrs | focusattrs | {'shape', 'coords', 'href', 'nohref', 'alt', 'target'})
     b = TagProp('b', allattrs)
     basefont = TagProp('basefont', componentattrs | i18nattrs | {'id', 'size', 'color', 'face'})
     bdo = TagProp('bdo', componentattrs | eventattrs | {'lang', 'dir'})
@@ -309,7 +339,7 @@ class Renderer(xml.XmlRenderer):
     embed = TagProp('embed', {
         'width', 'height', 'src', 'controller', 'src', 'target',
         'border', 'pluginspage', 'quality', 'type', 'bgcolor', 'menu'
-    }, SrcAttribute)
+    }, Embed)
     fieldset = TagProp('fieldset', allattrs)
     font = TagProp('font', componentattrs | i18nattrs | {'face', 'size', 'color'})
     form = TagProp('form', allattrs | {
@@ -333,7 +363,7 @@ class Renderer(xml.XmlRenderer):
     iframe = TagProp('iframe', componentattrs | {
         'longdesc', 'name', 'src', 'frameborder', 'marginwidth', 'marginheight',
         'noresize', 'scrolling', 'align', 'height', 'width', 'hspace', 'vspace', 'bordercolor',
-    }, IFrame)
+    })
     img = TagProp('img', allattrs | {
         'src', 'alt', 'name', 'longdesc', 'width', 'height', 'usemap',
         'ismap', 'align', 'border', 'hspace', 'vspace', 'lowsrc'
@@ -427,11 +457,12 @@ class Renderer(xml.XmlRenderer):
     def fromstring(self, text, tags_factory=Tag, fragment=False, no_leading_text=False, **kw):
         return super(Renderer, self).fromstring(text, tags_factory, fragment, no_leading_text, **kw)
 
-    def absolute_url(self, url, static=None, **params):
-        return (self.head.absolute_url if self.head is not None else absolute_url)(url, static, **params)
+    def absolute_url(self, url, url_prefix, always_relative=False, **params):
+        return absolute_url(url, url_prefix, always_relative, **params)
 
-    def absolute_assets_url(self, url, static=None, **params):
-        return (self.head.absolute_assets_url if self.head is not None else absolute_url)(url, static, **params)
+    def absolute_asset_url(self, url, static_prefix=None, always_relative=False, **params):
+        my_absolute_asset_url = self.head.absolute_asset_url if self.head is not None else absolute_url
+        return my_absolute_asset_url(url, static_prefix, always_relative, **params)
 
     @staticmethod
     def decorate_error(tag, msg):
