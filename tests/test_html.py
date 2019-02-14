@@ -70,16 +70,16 @@ def test_url():
     assert h.head.link(href='/abc').tostring() == b'<link href="/abc">'
     assert h.head.link(href='abc').tostring() == b'<link href="abc">'
 
-    assert h.head.link(rel="stylesheet", href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
-    assert h.head.link(rel="stylesheet", href='abc').tostring() == b'<link rel="stylesheet" href="abc">'
+    assert h.head.link(rel="stylesheet", href='/abc').get('href') == '/abc'
+    assert h.head.link(rel="stylesheet", href='abc').get('href') == 'abc'
 
     h = html.Renderer(static_url='/root')
 
     assert h.head.link(href='/abc').tostring() == b'<link href="/abc">'
     assert h.head.link(href='abc').tostring() == b'<link href="abc">'
 
-    assert h.head.link(rel="stylesheet", href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
-    assert h.head.link(rel="stylesheet", href='abc').tostring() == b'<link rel="stylesheet" href="/root/abc">'
+    assert h.head.link(rel="stylesheet", href='/abc').get('href') == '/abc'
+    assert h.head.link(rel="stylesheet", href='abc').get('href') == '/root/abc'
 
     h = html.Renderer()
 
@@ -98,11 +98,11 @@ def test_cache_buster():
     assert h.a(href='/abc').tostring() == b'<a href="/abc"></a>'
     assert h.a(href='abc').tostring() == b'<a href="abc"></a>'
 
-    assert h.head.link(rel='stylesheet', href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
-    assert h.head.link(rel='stylesheet', href='abc').tostring() == b'<link rel="stylesheet" href="abc?ver=1.2">'
+    assert h.head.link(rel='stylesheet', href='/abc').get('href') == '/abc'
+    assert h.head.link(rel='stylesheet', href='abc').get('href') == 'abc?ver=1.2'
 
-    assert h.head.link(rel='next', href='/abc').tostring() == b'<link rel="next" href="/abc">'
-    assert h.head.link(rel='next', href='abc').tostring() == b'<link rel="next" href="abc">'
+    assert h.head.link(rel='next', href='/abc').get('href') == '/abc'
+    assert h.head.link(rel='next', href='abc').get('href') == 'abc'
 
     assert h.script(src='/abc').tostring() == b'<script src="/abc"></script>'
     assert h.script(src='abc').tostring() == b'<script src="abc?ver=1.2"></script>'
@@ -112,11 +112,11 @@ def test_cache_buster():
     assert h.a(href='/abc').tostring() == b'<a href="/abc"></a>'
     assert h.a(href='abc').tostring() == b'<a href="abc"></a>'
 
-    assert h.head.link(rel='stylesheet', href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
-    assert h.head.link(rel='stylesheet', href='abc').tostring() == b'<link rel="stylesheet" href="/root/abc?ver=1.2">'
+    assert h.head.link(rel='stylesheet', href='/abc').get('href') == '/abc'
+    assert h.head.link(rel='stylesheet', href='abc').get('href') == '/root/abc?ver=1.2'
 
-    assert h.head.link(rel='next', href='/abc').tostring() == b'<link rel="next" href="/abc">'
-    assert h.head.link(rel='next', href='abc').tostring() == b'<link rel="next" href="abc">'
+    assert h.head.link(rel='next', href='/abc').get('href') == '/abc'
+    assert h.head.link(rel='next', href='abc').get('href') == 'abc'
 
     assert h.script(src='/abc').tostring() == b'<script src="/abc"></script>'
     assert h.script(src='abc').tostring() == b'<script src="/root/abc?ver=1.2"></script>'

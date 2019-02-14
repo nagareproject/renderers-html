@@ -53,8 +53,8 @@ def test_url():
 
     h = html.HeadRenderer(static_url='/root')
 
-    assert h.link(rel='stylesheet', href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
-    assert h.link(rel='stylesheet', href='abc').tostring() == b'<link rel="stylesheet" href="/root/abc">'
+    assert h.link(rel='stylesheet', href='/abc').get('href') == '/abc'
+    assert h.link(rel='stylesheet', href='abc').get('href') == '/root/abc'
 
     h = html.HeadRenderer()
 
@@ -267,23 +267,23 @@ def test_head_render_render9():
 def test_cache_buster():
     h = html.HeadRenderer(assets_version='1.2')
 
-    assert h.link(rel='stylesheet', href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
-    assert h.link(rel='stylesheet', href='abc').tostring() == b'<link rel="stylesheet" href="abc?ver=1.2">'
+    assert h.link(rel='stylesheet', href='/abc').get('href') == '/abc'
+    assert h.link(rel='stylesheet', href='abc').get('href') == 'abc?ver=1.2'
 
-    assert h.link(rel='next', href='/abc').tostring() == b'<link rel="next" href="/abc">'
-    assert h.link(rel='next', href='abc').tostring() == b'<link rel="next" href="abc">'
-
-    h = html.HeadRenderer(static_url='/root', assets_version='1.2')
-
-    assert h.link(rel='stylesheet', href='/abc').tostring() == b'<link rel="stylesheet" href="/abc">'
-    assert h.link(rel='stylesheet', href='abc').tostring() == b'<link rel="stylesheet" href="/root/abc?ver=1.2">'
-
-    assert h.link(rel='next', href='/abc').tostring() == b'<link rel="next" href="/abc">'
-    assert h.link(rel='next', href='abc').tostring() == b'<link rel="next" href="abc">'
+    assert h.link(rel='next', href='/abc').get('href') == '/abc'
+    assert h.link(rel='next', href='abc').get('href') == 'abc'
 
     h = html.HeadRenderer(static_url='/root', assets_version='1.2')
 
-    assert h.link(rel='stylesheet', href='/abc?foo=bar').tostring() == b'<link rel="stylesheet" href="/abc?foo=bar">'
-    assert h.link(rel='stylesheet', href='abc?foo=bar').tostring() == b'<link rel="stylesheet" href="/root/abc?foo=bar&amp;ver=1.2">'
-    assert h.link(rel='stylesheet', href='/abc?foo=bar&hello=world').tostring() == b'<link rel="stylesheet" href="/abc?foo=bar&amp;hello=world">'
-    assert h.link(rel='stylesheet', href='abc?foo=bar&hello=world').tostring() == b'<link rel="stylesheet" href="/root/abc?foo=bar&amp;hello=world&amp;ver=1.2">'
+    assert h.link(rel='stylesheet', href='/abc').get('href') == '/abc'
+    assert h.link(rel='stylesheet', href='abc').get('href') == '/root/abc?ver=1.2'
+
+    assert h.link(rel='next', href='/abc').get('href') == '/abc'
+    assert h.link(rel='next', href='abc').get('href') == 'abc'
+
+    h = html.HeadRenderer(static_url='/root', assets_version='1.2')
+
+    assert h.link(rel='stylesheet', href='/abc?foo=bar').get('href') == '/abc?foo=bar'
+    assert h.link(rel='stylesheet', href='abc?foo=bar').get('href') == '/root/abc?foo=bar&ver=1.2'
+    assert h.link(rel='stylesheet', href='/abc?foo=bar&hello=world').get('href') == '/abc?foo=bar&hello=world'
+    assert h.link(rel='stylesheet', href='abc?foo=bar&hello=world').get('href') == '/root/abc?foo=bar&hello=world&ver=1.2'
