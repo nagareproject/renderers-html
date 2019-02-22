@@ -110,7 +110,7 @@ class Tag(xml.Tag):
         Return:
           - ``self``
         """
-        self.renderer.decorate_error(self, msg)
+        return self.renderer.decorate_error(self, msg)
 
 
 class HrefAttribute(Tag):
