@@ -223,7 +223,7 @@ class HeadRenderer(xml.XmlRenderer):
         """
         self._css_url.setdefault(self.absolute_asset_url(url), attributes)
 
-    def javascript(self, id_, script, **attributes):
+    def javascript(self, id_, script, bottom=False, **attributes):
         """Memorize an in-line named javascript code
 
         In:
@@ -231,9 +231,9 @@ class HeadRenderer(xml.XmlRenderer):
           - ``script`` -- the javascript code
           - ``attributes`` -- attributes of the generated ``<script>`` tag
         """
-        self._named_javascript.setdefault(id_, (script, attributes))
+        self._named_javascript.setdefault(id_, (script, attributes, bottom))
 
-    def javascript_url(self, url, **attributes):
+    def javascript_url(self, url, bottom=False, **attributes):
         """Memorize a javascript URL
 
         In:
@@ -243,9 +243,9 @@ class HeadRenderer(xml.XmlRenderer):
         Return:
           - ``()``
         """
-        self._javascript_url.setdefault(self.absolute_asset_url(url), attributes)
+        self._javascript_url.setdefault(self.absolute_asset_url(url), (attributes, bottom))
 
-    def render(self):
+    def render_top(self):
         # Create the tags to include the CSS styles and the javascript codes
         head = self.root
 
@@ -262,8 +262,9 @@ class HeadRenderer(xml.XmlRenderer):
         )
         head.extend(
             self.script(type='text/javascript', src=url, **attributes)
-            for url, attributes
+            for url, (attributes, bottom)
             in self._javascript_url.items()
+            if not bottom
         )
 
         head.extend(
@@ -273,11 +274,25 @@ class HeadRenderer(xml.XmlRenderer):
         )
         head.extend(
             self.script(js, type='text/javascript', data_nagare_js=name, **attributes)
-            for name, (js, attributes)
+            for name, (js, attributes, bottom)
             in self._named_javascript.items()
+            if not bottom
         )
 
         return head
+
+    def render_bottom(self):
+        return [
+            self.script(type='text/javascript', src=url, **attributes)
+            for url, (attributes, bottom)
+            in self._javascript_url.items()
+            if bottom
+        ] + [
+            self.script(js, type='text/javascript', data_nagare_js=name, **attributes)
+            for name, (js, attributes, bottom)
+            in self._named_javascript.items()
+            if bottom
+        ]
 
 
 class Renderer(xml.XmlRenderer):
