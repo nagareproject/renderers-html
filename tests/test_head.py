@@ -73,13 +73,13 @@ def test_css_js_order():
     for i in range(10):
         head.css(str(i), 'style_%d.css' % i, a=42 + i)
 
-    result = [(str(i), ('style_%d.css' % i, {'a': 42 + i})) for i in range(10)]
+    result = [(str(i), ('style_%d.css' % i, {'a': 42 + i}, False)) for i in range(10)]
     assert list(head._named_css.items()) == result
 
     for i in range(10):
         head.css_url('http://example.com/style_%d.css' % i, a=42 + i)
 
-    result = [('http://example.com/style_%d.css' % i, {'a': 42 + i}) for i in range(10)]
+    result = [('http://example.com/style_%d.css' % i, ({'a': 42 + i}, False)) for i in range(10)]
     assert list(head._css_url.items()) == result
 
     for i in range(10):
@@ -101,12 +101,12 @@ def test_css_js_override():
     head.css('css1', 'css1', a=42)
     head.css('css1', 'css2', b=42)
 
-    assert list(head._named_css.items()) == [('css1', ('css1', {'a': 42}))]
+    assert list(head._named_css.items()) == [('css1', ('css1', {'a': 42}, False))]
 
     head.css_url('http://example.com/style_1.css', a=42)
     head.css_url('http://example.com/style_1.css', b=42)
 
-    assert list(head._css_url.items()) == [('http://example.com/style_1.css', {'a': 42})]
+    assert list(head._css_url.items()) == [('http://example.com/style_1.css', ({'a': 42}, False))]
 
     head.javascript('js1', 'javascript1', a=42)
     head.javascript('js1', 'javascript2', b=42)
@@ -124,13 +124,13 @@ def test_head_render_javascript_css1():
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.css_url('css')
 
-    assert list(h._css_url.items()) == [('/tmp/static_directory/css', {})]
+    assert list(h._css_url.items()) == [('/tmp/static_directory/css', ({}, False))]
 
     h = html.HeadRenderer('/tmp/static_directory', assets_version='1.2')
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.css_url('css')
 
-    assert list(h._css_url.items()) == [('/tmp/static_directory/css?ver=1.2', {})]
+    assert list(h._css_url.items()) == [('/tmp/static_directory/css?ver=1.2', ({}, False))]
 
 
 def test_head_render_javascript_css2():
@@ -139,13 +139,13 @@ def test_head_render_javascript_css2():
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.css_url('/css')
 
-    assert list(h._css_url.items()) == [('/css', {})]
+    assert list(h._css_url.items()) == [('/css', ({}, False))]
 
     h = html.HeadRenderer('/tmp/static_directory/', assets_version='1.2')
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.css_url('/css')
 
-    assert list(h._css_url.items()) == [('/css', {})]
+    assert list(h._css_url.items()) == [('/css', ({}, False))]
 
 
 def test_head_render_css_url3():
@@ -155,8 +155,8 @@ def test_head_render_css_url3():
         h << h.css_url('/css', a=42)
         h << h.css_url('css', b=10)
 
-    assert h._css_url['/css'] == {'a': 42}
-    assert h._css_url['/tmp/static_directory/css'] == {'b': 10}
+    assert h._css_url['/css'] == ({'a': 42}, False)
+    assert h._css_url['/tmp/static_directory/css'] == ({'b': 10}, False)
 
 
 def test_head_render_javascript_url1():

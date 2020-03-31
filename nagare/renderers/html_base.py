@@ -204,7 +204,7 @@ class HeadRenderer(xml.XmlRenderer):
 
         return url.absolute(static_prefix if static_prefix is not None else self.static_url, always_relative, **params)
 
-    def css(self, id_, style, **attributes):
+    def css(self, id_, style, bottom=False, **attributes):
         """Memorize an in-line named css style
 
         In:
@@ -212,16 +212,16 @@ class HeadRenderer(xml.XmlRenderer):
           - ``style`` -- the css style
           - ``attributes`` -- attributes of the generated ``<style>`` tag
         """
-        self._named_css.setdefault(id_, (style, attributes))
+        self._named_css.setdefault(id_, (style, attributes, bottom))
 
-    def css_url(self, url, **attributes):
+    def css_url(self, url, bottom=False, **attributes):
         """Memorize a css style URL
 
         In:
           - ``url`` -- the css style URL
           - ``attributes`` -- attributes of the generated ``<link>`` tag
         """
-        self._css_url.setdefault(self.absolute_asset_url(url), attributes)
+        self._css_url.setdefault(self.absolute_asset_url(url), (attributes, bottom))
 
     def javascript(self, id_, script, bottom=False, **attributes):
         """Memorize an in-line named javascript code
@@ -257,8 +257,9 @@ class HeadRenderer(xml.XmlRenderer):
 
         head.extend(
             self.link(rel='stylesheet', type='text/css', href=url, **attributes)
-            for url, attributes
+            for url, (attributes, bottom)
             in self._css_url.items()
+            if not bottom
         )
         head.extend(
             self.script(type='text/javascript', src=url, **attributes)
@@ -269,8 +270,9 @@ class HeadRenderer(xml.XmlRenderer):
 
         head.extend(
             self.style(css, type='text/css', data_nagare_css=name, **attributes)
-            for name, (css, attributes)
+            for name, (css, attributes, bottom)
             in self._named_css.items()
+            if not bottom
         )
         head.extend(
             self.script(js, type='text/javascript', data_nagare_js=name, **attributes)
@@ -283,9 +285,19 @@ class HeadRenderer(xml.XmlRenderer):
 
     def render_bottom(self):
         return [
+            self.link(rel='stylesheet', type='text/css', href=url, **attributes)
+            for url, (attributes, bottom)
+            in self._css_url.items()
+            if bottom
+        ] + [
             self.script(type='text/javascript', src=url, **attributes)
             for url, (attributes, bottom)
             in self._javascript_url.items()
+            if bottom
+        ] + [
+            self.style(css, type='text/css', data_nagare_css=name, **attributes)
+            for name, (css, attributes, bottom)
+            in self._named_css.items()
             if bottom
         ] + [
             self.script(js, type='text/javascript', data_nagare_js=name, **attributes)
