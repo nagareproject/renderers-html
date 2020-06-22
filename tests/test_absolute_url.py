@@ -112,3 +112,15 @@ def test_absolute_asset_url5():
     assert h.absolute_asset_url('abc') == '/static/root2/abc'
     assert h.absolute_asset_url('abc/') == '/static/root2/abc/'
     assert h.absolute_asset_url('abc/') == '/static/root2/abc/'
+
+
+def test_absolute_asset_url6():
+    h = html.Renderer(static_url='/static/root')
+
+    assert h.absolute_asset_url('/tmp?a=42', '/abc') == '/tmp?a=42'
+    assert h.absolute_asset_url('tmp?a=42', '/abc') == '/abc/tmp?a=42'
+    assert h.absolute_asset_url('http://localhost/tmp?a=42', '/abc') == 'http://localhost/tmp?a=42'
+
+    assert h.absolute_asset_url('/tmp?a=42', '/abc', b=43) in ('/tmp?a=42&b=43', '/tmp?b=43&a=42')
+    assert h.absolute_asset_url('tmp?a=42', '/abc', b=43) in ('/abc/tmp?a=42&b=43', '/abc/tmp?b=43&a=42')
+    assert h.absolute_asset_url('http://localhost/tmp?a=42', '/abc', b=43) in ('http://localhost/tmp?a=42&b=43', 'http://localhost/tmp?b=43&a=42')

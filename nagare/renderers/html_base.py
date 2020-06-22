@@ -66,18 +66,14 @@ class Url(object):
         Return:
         - an absolute URL
         """
-        url = self.url
-
         if not self.is_url():
             if always_relative or not self.is_absolute():
                 self.parts[2] = path.join(url_prefix or '', self.parts[2].lstrip('/'))
 
-            if params:
-                self.parts[4] = (self.parts[4] + '&' + '&'.join('%s=%s' % param for param in params.items())).lstrip('&')
+        if params:
+            self.parts[4] = (self.parts[4] + '&' + '&'.join('%s=%s' % param for param in params.items())).lstrip('&')
 
-            url = urlparse.urlunparse(self.parts)
-
-        return url
+        return urlparse.urlunparse(self.parts)
 
 
 def absolute_url(url, url_prefix, always_relative=False, **params):
