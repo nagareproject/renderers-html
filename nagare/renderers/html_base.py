@@ -210,14 +210,14 @@ class HeadRenderer(xml.XmlRenderer):
         """
         self._named_css.setdefault(id_, (style, attributes, bottom))
 
-    def css_url(self, url, bottom=False, **attributes):
+    def css_url(self, url, bottom=False, url_params=None, **attributes):
         """Memorize a css style URL
 
         In:
           - ``url`` -- the css style URL
           - ``attributes`` -- attributes of the generated ``<link>`` tag
         """
-        self._css_url.setdefault(self.absolute_asset_url(url), (attributes, bottom))
+        self._css_url.setdefault(self.absolute_asset_url(url, **(url_params or {})), (attributes, bottom))
 
     def javascript(self, id_, script, bottom=False, **attributes):
         """Memorize an in-line named javascript code
@@ -229,7 +229,7 @@ class HeadRenderer(xml.XmlRenderer):
         """
         self._named_javascript.setdefault(id_, (script, attributes, bottom))
 
-    def javascript_url(self, url, bottom=False, **attributes):
+    def javascript_url(self, url, bottom=False, url_params=None, **attributes):
         """Memorize a javascript URL
 
         In:
@@ -239,7 +239,7 @@ class HeadRenderer(xml.XmlRenderer):
         Return:
           - ``()``
         """
-        self._javascript_url.setdefault(self.absolute_asset_url(url), (attributes, bottom))
+        self._javascript_url.setdefault(self.absolute_asset_url(url, **(url_params or {})), (attributes, bottom))
 
     def render_top(self):
         # Create the tags to include the CSS styles and the javascript codes
