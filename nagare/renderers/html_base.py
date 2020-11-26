@@ -461,7 +461,7 @@ class Renderer(xml.XmlRenderer):
     _parser = ET.HTMLParser()
     _parser.set_element_class_lookup(ET.ElementDefaultClassLookup(element=Tag))
 
-    def __init__(self, parent=None, **kw):
+    def __init__(self, parent=None, *args, **kw):
         """Renderer initialisation
 
         In:
