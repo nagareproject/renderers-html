@@ -38,7 +38,7 @@ def test_url():
     h = html.Renderer()
 
     assert h.embed(src='/abc').tostring() == b'<embed src="/abc"></embed>'
-    assert h.embed(src='abc').tostring() == b'<embed src="abc"></embed>'
+    assert h.embed(src='abc').tostring() == b'<embed src="/abc"></embed>'
 
     h = html.Renderer(static_url='/root')
 
@@ -48,7 +48,7 @@ def test_url():
     h = html.Renderer()
 
     assert h.img(src='/abc', lowsrc='/def').tostring() == b'<img src="/abc" lowsrc="/def">'
-    assert h.img(src='abc', lowsrc='def').tostring() == b'<img src="abc" lowsrc="def">'
+    assert h.img(src='abc', lowsrc='def').tostring() == b'<img src="/abc" lowsrc="/def">'
 
     h = html.Renderer(static_url='/root')
 
@@ -58,7 +58,7 @@ def test_url():
     h = html.Renderer()
 
     assert h.input(src='/abc').tostring() == b'<input src="/abc">'
-    assert h.input(src='abc').tostring() == b'<input src="abc">'
+    assert h.input(src='abc').tostring() == b'<input src="/abc">'
 
     h = html.Renderer(static_url='/root')
 
@@ -71,7 +71,7 @@ def test_url():
     assert h.head.link(href='abc').tostring() == b'<link href="abc">'
 
     assert h.head.link(rel="stylesheet", href='/abc').get('href') == '/abc'
-    assert h.head.link(rel="stylesheet", href='abc').get('href') == 'abc'
+    assert h.head.link(rel="stylesheet", href='abc').get('href') == '/abc'
 
     h = html.Renderer(static_url='/root')
 
@@ -84,7 +84,7 @@ def test_url():
     h = html.Renderer()
 
     assert h.script(src='/abc').tostring() == b'<script src="/abc"></script>'
-    assert h.script(src='abc').tostring() == b'<script src="abc"></script>'
+    assert h.script(src='abc').tostring() == b'<script src="/abc"></script>'
 
     h = html.Renderer(static_url='/root')
 
@@ -99,13 +99,13 @@ def test_cache_buster():
     assert h.a(href='abc').tostring() == b'<a href="abc"></a>'
 
     assert h.head.link(rel='stylesheet', href='/abc').get('href') == '/abc'
-    assert h.head.link(rel='stylesheet', href='abc').get('href') == 'abc?ver=1.2'
+    assert h.head.link(rel='stylesheet', href='abc').get('href') == '/abc?ver=1.2'
 
     assert h.head.link(rel='next', href='/abc').get('href') == '/abc'
     assert h.head.link(rel='next', href='abc').get('href') == 'abc'
 
     assert h.script(src='/abc').tostring() == b'<script src="/abc"></script>'
-    assert h.script(src='abc').tostring() == b'<script src="abc?ver=1.2"></script>'
+    assert h.script(src='abc').tostring() == b'<script src="/abc?ver=1.2"></script>'
 
     h = html.Renderer(static_url='/root', assets_version='1.2')
 

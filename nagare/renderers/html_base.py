@@ -68,7 +68,7 @@ class Url(object):
         """
         if not self.is_url():
             if always_relative or not self.is_absolute():
-                self.parts[2] = path.join(url_prefix or '', self.parts[2].lstrip('/'))
+                self.parts[2] = path.join(url_prefix or '/', self.parts[2].lstrip('/'))
 
         if params:
             self.parts[4] = (self.parts[4] + '&' + '&'.join('%s=%s' % param for param in params.items())).lstrip('&')

@@ -59,7 +59,7 @@ def test_url():
     h = html.HeadRenderer()
 
     assert h.script(src='/abc').tostring() == b'<script src="/abc"></script>'
-    assert h.script(src='abc').tostring() == b'<script src="abc"></script>'
+    assert h.script(src='abc').tostring() == b'<script src="/abc"></script>'
 
     h = html.HeadRenderer(static_url='/root')
 
@@ -268,7 +268,7 @@ def test_cache_buster():
     h = html.HeadRenderer(assets_version='1.2')
 
     assert h.link(rel='stylesheet', href='/abc').get('href') == '/abc'
-    assert h.link(rel='stylesheet', href='abc').get('href') == 'abc?ver=1.2'
+    assert h.link(rel='stylesheet', href='abc').get('href') == '/abc?ver=1.2'
 
     assert h.link(rel='next', href='/abc').get('href') == '/abc'
     assert h.link(rel='next', href='abc').get('href') == 'abc'
