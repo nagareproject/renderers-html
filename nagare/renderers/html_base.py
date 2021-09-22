@@ -71,7 +71,8 @@ class Url(object):
                 self.parts[2] = path.join(url_prefix or '/', self.parts[2].lstrip('/'))
 
         if params:
-            self.parts[4] = (self.parts[4] + '&' + '&'.join('%s=%s' % param for param in params.items())).lstrip('&')
+            params = ['%s=%s' % param for param in reversed(list(params.items()))]
+            self.parts[4] = (self.parts[4] + '&' + '&'.join(params)).lstrip('&')
 
         return urlparse.urlunparse(self.parts)
 
