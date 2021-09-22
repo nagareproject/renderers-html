@@ -24,9 +24,9 @@ def test_absolute_asset_url1():
 
 def test_absolute_asset_url2():
     assert html.absolute_asset_url('', None, foo='bar') == '/?foo=bar'
-    assert html.absolute_asset_url('', None, foo='bar', hello='world') == '/?foo=bar&hello=world'
+    assert html.absolute_asset_url('', None, foo='bar', hello='world') == '/?hello=world&foo=bar'
     assert html.absolute_asset_url('abc', '/static/root', foo='bar') == '/static/root/abc?foo=bar'
-    assert html.absolute_asset_url('abc', '/static/root', foo='bar', hello='world') == '/static/root/abc?foo=bar&hello=world'
+    assert html.absolute_asset_url('abc', '/static/root', foo='bar', hello='world') == '/static/root/abc?hello=world&foo=bar'
 
 
 def test_absolute_asset_url3():
