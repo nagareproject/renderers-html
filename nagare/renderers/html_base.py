@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2021 Net-ng.
+# Copyright (c) 2008-2022 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -174,7 +174,7 @@ class HeadRenderer(xml.XmlRenderer):
         """
         super(HeadRenderer, self).__init__()
 
-        # Directory where are located the static contents of the application
+        # Directory where the static contents of the application are located
         self.static_url = static_url
         self.assets_version = assets_version
 
@@ -210,6 +210,7 @@ class HeadRenderer(xml.XmlRenderer):
           - ``attributes`` -- attributes of the generated ``<style>`` tag
         """
         self._named_css.setdefault(id_, (style, attributes, bottom))
+        return ''  # In case of erroneous use as in `h << h.css('...')` instead of only `h.css('...')`
 
     def css_url(self, url, bottom=False, url_params=None, **attributes):
         """Memorize a css style URL
@@ -219,6 +220,7 @@ class HeadRenderer(xml.XmlRenderer):
           - ``attributes`` -- attributes of the generated ``<link>`` tag
         """
         self._css_url.setdefault(self.absolute_asset_url(url, **(url_params or {})), (attributes, bottom))
+        return ''
 
     def javascript(self, id_, script, bottom=False, **attributes):
         """Memorize an in-line named javascript code
@@ -229,6 +231,7 @@ class HeadRenderer(xml.XmlRenderer):
           - ``attributes`` -- attributes of the generated ``<script>`` tag
         """
         self._named_javascript.setdefault(id_, (script, attributes, bottom))
+        return ''
 
     def javascript_url(self, url, bottom=False, url_params=None, **attributes):
         """Memorize a javascript URL
@@ -241,6 +244,7 @@ class HeadRenderer(xml.XmlRenderer):
           - ``()``
         """
         self._javascript_url.setdefault(self.absolute_asset_url(url, **(url_params or {})), (attributes, bottom))
+        return ''
 
     def render_top(self):
         # Create the tags to include the CSS styles and the javascript codes
