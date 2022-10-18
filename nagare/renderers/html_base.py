@@ -98,7 +98,7 @@ class Tag(xml.Tag):
         """
         return super(Tag, self).tostring(method, encoding, pipeline, **kw)
 
-    def error(self, msg):
+    def error(self, msg, classes=''):
         """Mark this tag as erroneous
 
         In:
@@ -107,7 +107,7 @@ class Tag(xml.Tag):
         Return:
           - ``self``
         """
-        return self.renderer.decorate_error(self, msg)
+        return self.renderer.decorate_error(self, msg, classes)
 
 
 class HrefAttribute(Tag):
@@ -127,7 +127,7 @@ class HrefAttribute(Tag):
 class Link(HrefAttribute):
 
     def on_change(self):
-        if self.get('rel', '') == 'stylesheet':
+        if self.get('rel', '') in ('icon', 'stylesheet'):
             super(Link, self).on_change()
 
 
@@ -493,5 +493,5 @@ class Renderer(xml.XmlRenderer):
         return my_absolute_asset_url(url, static_prefix, always_relative, **params)
 
     @staticmethod
-    def decorate_error(tag, msg):
+    def decorate_error(tag, msg, classes=''):
         return tag
