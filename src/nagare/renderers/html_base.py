@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -7,7 +7,7 @@
 # this distribution.
 # --
 
-"""The XHTML renderer
+"""The XHTML renderer.
 
 This renderer only depends on the ``nagare.renderers.xml`` module.
 Having not dependencies to the Nagare framework make it suitable to be used in
@@ -18,11 +18,10 @@ try:
     import urlparse
 except ImportError:
     import urllib.parse as urlparse
-from os import path
 from collections import OrderedDict
+from os import path
 
 from lxml import etree as ET
-
 from nagare.renderers import xml
 from nagare.renderers.xml import TagProp
 
@@ -64,7 +63,7 @@ class Url(object):
         return self.parts[2].startswith('/') or (self.parts[0] == 'data')
 
     def absolute(self, url_prefix, always_relative=False, **params):
-        """Convert a relative URL of a static content to an absolute one
+        """Convert a relative URL of a static content to an absolute one.
 
         In:
         - ``url`` -- url to convert
@@ -73,9 +72,8 @@ class Url(object):
         Return:
         - an absolute URL
         """
-        if not self.is_url():
-            if always_relative or not self.is_absolute():
-                self.parts[2] = path.join(url_prefix or '/', self.parts[2].lstrip('/'))
+        if not self.is_url() and (always_relative or not self.is_absolute()):
+            self.parts[2] = path.join(url_prefix or '/', self.parts[2].lstrip('/'))
 
         if params:
             params = ['%s=%s' % param for param in reversed(list(params.items()))]
@@ -92,10 +90,10 @@ absolute_asset_url = absolute_url  # noqa: E305
 
 
 class Tag(xml.Tag):
-    """A html tag"""
+    """A html tag."""
 
     def tostring(self, method='html', encoding='utf-8', pipeline=True, **kw):
-        """Serialize in HTML the tree beginning at this tag
+        """Serialize in HTML the tree beginning at this tag.
 
         In:
           - ``encoding`` -- encoding of the XML
@@ -107,7 +105,7 @@ class Tag(xml.Tag):
         return super(Tag, self).tostring(method, encoding, pipeline, **kw)
 
     def error(self, msg, classes=''):
-        """Mark this tag as erroneous
+        """Mark this tag as erroneous.
 
         In:
           - ``msg`` -- the error message
@@ -155,7 +153,7 @@ class Img(SrcAttribute):
 
 
 class HeadRenderer(xml.XmlRenderer):
-    """The HTML head Renderer
+    """The HTML head Renderer.
 
     This renderer knows about the possible tags of a html ``<head>``
     """
@@ -175,7 +173,7 @@ class HeadRenderer(xml.XmlRenderer):
     _parser.set_element_class_lookup(ET.ElementDefaultClassLookup(element=Tag))
 
     def __init__(self, static_url=None, assets_version=None):
-        """Renderer initialisation
+        """Renderer initialisation.
 
         The ``HeadRenderer`` keeps track of the javascript and css used by every views,
         to be able to concatenate them into the ``<head>`` section.
@@ -210,7 +208,7 @@ class HeadRenderer(xml.XmlRenderer):
         return url.absolute(static_prefix if static_prefix is not None else self.static_url, always_relative, **params)
 
     def css(self, id_, style, bottom=False, **attributes):
-        """Memorize an in-line named css style
+        """Memorize an in-line named css style.
 
         In:
           - ``id_`` -- unique id of this css style (to prevent double definition)
@@ -221,7 +219,7 @@ class HeadRenderer(xml.XmlRenderer):
         return ''  # In case of erroneous use as in `h << h.css('...')` instead of only `h.css('...')`
 
     def css_url(self, url, bottom=False, url_params=None, **attributes):
-        """Memorize a css style URL
+        """Memorize a css style URL.
 
         In:
           - ``url`` -- the css style URL
@@ -231,7 +229,7 @@ class HeadRenderer(xml.XmlRenderer):
         return ''
 
     def javascript(self, id_, script, bottom=False, **attributes):
-        """Memorize an in-line named javascript code
+        """Memorize an in-line named javascript code.
 
         In:
           - ``id_`` -- unique id of this javascript code (to prevent double definition)
@@ -242,7 +240,7 @@ class HeadRenderer(xml.XmlRenderer):
         return ''
 
     def javascript_url(self, url, bottom=False, url_params=None, **attributes):
-        """Memorize a javascript URL
+        """Memorize a javascript URL.
 
         In:
           - ``url`` -- the javascript URL
@@ -605,7 +603,8 @@ class Renderer(xml.XmlRenderer):
             'nowrap',
             'bgcolor',
             'width',
-            'height' 'background',
+            'height',
+            'background',
             'bordercolor',
         },
     )
@@ -616,14 +615,11 @@ class Renderer(xml.XmlRenderer):
     ul = TagProp('ul', allattrs | {'type', 'compact'})
     var = TagProp('var', allattrs)
 
-    #    frame = TagProp('frame', componentattrs | {'longdesc', 'name', 'src', 'frameborder', 'marginwidht', 'marginheight',
-    #                                                                  'noresize', 'scrolling', 'framespacing', 'border', 'marginwidth', 'marginheight',
-    #                                                                  'frameborder', 'noresize', 'scrolling'}, SrcAttribute)
     _parser = ET.HTMLParser()
     _parser.set_element_class_lookup(ET.ElementDefaultClassLookup(element=Tag))
 
     def __init__(self, parent=None, *args, **kw):
-        """Renderer initialisation
+        """Renderer initialisation.
 
         In:
           - ``parent`` -- parent renderer

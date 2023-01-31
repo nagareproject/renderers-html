@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -21,7 +21,7 @@ def test_html1():
 
 
 def test_head():
-    """ XHTML namespace unit test - HTMLRender - init - test if head exists """
+    """XHTML namespace unit test - HTMLRender - init - test if head exists"""
     h = html.Renderer()
     assert hasattr(h, 'head')
     assert isinstance(h.head, html.HeadRenderer)
@@ -125,8 +125,13 @@ def test_cache_buster():
 
     assert h.script(src='/abc?foo=bar').tostring() == b'<script src="/abc?foo=bar"></script>'
     assert h.script(src='abc?foo=bar').tostring() == b'<script src="/root/abc?foo=bar&amp;ver=1.2"></script>'
-    assert h.script(src='/abc?foo=bar&hello=world').tostring() == b'<script src="/abc?foo=bar&amp;hello=world"></script>'
-    assert h.script(src='abc?foo=bar&hello=world').tostring() == b'<script src="/root/abc?foo=bar&amp;hello=world&amp;ver=1.2"></script>'
+    assert (
+        h.script(src='/abc?foo=bar&hello=world').tostring() == b'<script src="/abc?foo=bar&amp;hello=world"></script>'
+    )
+    assert (
+        h.script(src='abc?foo=bar&hello=world').tostring()
+        == b'<script src="/root/abc?foo=bar&amp;hello=world&amp;ver=1.2"></script>'
+    )
 
 
 def test_htmltag_write_xmlstring1():
@@ -138,10 +143,16 @@ def test_htmltag_write_xmlstring1():
 def test_htmltag_write_xmlstring2():
     h = html.Renderer()
     h << h.table(h.tr(h.td().meld_id('test'), h.tr(h.td().meld_id('test'))))
-    assert h.root.tostring(pipeline=True) == b'<table><tr><td xmlns:ns0="http://www.plope.com/software/meld3" ns0:id="test"></td><tr><td xmlns:ns0="http://www.plope.com/software/meld3" ns0:id="test"></td></tr></tr></table>'
+    assert (
+        h.root.tostring(pipeline=True)
+        == b'<table><tr><td xmlns:ns0="http://www.plope.com/software/meld3" ns0:id="test"></td><tr><td xmlns:ns0="http://www.plope.com/software/meld3" ns0:id="test"></td></tr></tr></table>'
+    )
 
 
 def test_htmltag_write_xmlstring3():
     h = html.Renderer()
     h << h.table(h.tr(h.td().meld_id('false'), h.tr(h.td().meld_id('false'))))
-    assert h.root.tostring(pipeline=False) == b'<table><tr><td xmlns:ns0="http://www.plope.com/software/meld3"></td><tr><td xmlns:ns0="http://www.plope.com/software/meld3"></td></tr></tr></table>'
+    assert (
+        h.root.tostring(pipeline=False)
+        == b'<table><tr><td xmlns:ns0="http://www.plope.com/software/meld3"></td><tr><td xmlns:ns0="http://www.plope.com/software/meld3"></td></tr></tr></table>'
+    )

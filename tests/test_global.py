@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -150,7 +150,8 @@ def test_html5():
     root = h.html(h.head.head(h.head.root), h.root)
 
     result = [
-        b'<%s></%s>' % (tag, tag) for tag in b'article aside hgroup header footer nav figure '
+        b'<%s></%s>' % (tag, tag)
+        for tag in b'article aside hgroup header footer nav figure '
         b'video audio source embed mark progress meter ruby rt '
         b'rp wbr canvas command details summary datalist keygen output'.split()
     ]

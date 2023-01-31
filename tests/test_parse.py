@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -60,7 +60,7 @@ def test_parse2():
 
 
 def test_parse3():
-    """ XHTML namespace unit test - HTMLRender - parse_html - bad encoding """
+    """XHTML namespace unit test - HTMLRender - parse_html - bad encoding"""
     h = html.Renderer()
     filename = os.path.join(os.path.dirname(__file__), 'iso-8859.xml')
 

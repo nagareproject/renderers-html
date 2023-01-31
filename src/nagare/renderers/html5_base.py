@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -7,24 +7,22 @@
 # this distribution.
 # --
 
-"""The XHTML5 renderer
-"""
+"""The XHTML5 renderer."""
 
 from nagare.renderers import html_base
 from nagare.renderers.xml import TagProp
 
 
 class ObsoleteTagProp(TagProp):
-    """Class of all the HTML4 tags obsolete in HTML5
-    """
+    """Class of all the HTML4 tags obsolete in HTML5."""
+
     def __get__(self, renderer, cls):
         # Raise the same exception as when an attribute doesn't exist
         raise AttributeError("'%s' object has no attribute '%s'" % (renderer.__class__.__name__, self._name))
 
 
 class Renderer(html_base.Renderer):
-    """The XHTML5 synchronous renderer
-    """
+    """The XHTML5 synchronous renderer."""
 
     doctype = '<!DOCTYPE html>'
 

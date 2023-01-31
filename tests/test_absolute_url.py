@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -26,7 +26,10 @@ def test_absolute_asset_url2():
     assert html.absolute_asset_url('', None, foo='bar') == '/?foo=bar'
     assert html.absolute_asset_url('', None, foo='bar', hello='world') == '/?hello=world&foo=bar'
     assert html.absolute_asset_url('abc', '/static/root', foo='bar') == '/static/root/abc?foo=bar'
-    assert html.absolute_asset_url('abc', '/static/root', foo='bar', hello='world') == '/static/root/abc?hello=world&foo=bar'
+    assert (
+        html.absolute_asset_url('abc', '/static/root', foo='bar', hello='world')
+        == '/static/root/abc?hello=world&foo=bar'
+    )
 
 
 def test_absolute_asset_url3():
@@ -123,4 +126,7 @@ def test_absolute_asset_url6():
 
     assert h.absolute_asset_url('/tmp?a=42', '/abc', b=43) in ('/tmp?a=42&b=43', '/tmp?b=43&a=42')
     assert h.absolute_asset_url('tmp?a=42', '/abc', b=43) in ('/abc/tmp?a=42&b=43', '/abc/tmp?b=43&a=42')
-    assert h.absolute_asset_url('http://localhost/tmp?a=42', '/abc', b=43) in ('http://localhost/tmp?a=42&b=43', 'http://localhost/tmp?b=43&a=42')
+    assert h.absolute_asset_url('http://localhost/tmp?a=42', '/abc', b=43) in (
+        'http://localhost/tmp?a=42&b=43',
+        'http://localhost/tmp?b=43&a=42',
+    )

@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2022 Net-ng.
+# Copyright (c) 2008-2023 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -134,7 +134,7 @@ def test_head_render_javascript_css1():
 
 
 def test_head_render_javascript_css2():
-    """ XHTML namespace unit test - HeadRender - css_url - absolute url """
+    """XHTML namespace unit test - HeadRender - css_url - absolute url"""
     h = html.HeadRenderer('/tmp/static_directory/')
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.css_url('/css')
@@ -149,7 +149,7 @@ def test_head_render_javascript_css2():
 
 
 def test_head_render_css_url3():
-    """ XHTML namespace unit test - HeadRender - css_url - absolute url + relative url """
+    """XHTML namespace unit test - HeadRender - css_url - absolute url + relative url"""
     h = html.HeadRenderer('/tmp/static_directory/')
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.css_url('/css', a=42)
@@ -160,7 +160,7 @@ def test_head_render_css_url3():
 
 
 def test_head_render_javascript_url1():
-    """ XHTML namespace unit test - HeadRender - javascript_url - relative url """
+    """XHTML namespace unit test - HeadRender - javascript_url - relative url"""
     h = html.HeadRenderer('/tmp/static_directory/')
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.javascript_url('test.js')
@@ -169,7 +169,7 @@ def test_head_render_javascript_url1():
 
 
 def test_head_render_javascript_url2():
-    """ XHTML namespace unit test - HeadRender - javascript_url - absolute url """
+    """XHTML namespace unit test - HeadRender - javascript_url - absolute url"""
     h = html.HeadRenderer('/tmp/static_directory/')
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.javascript_url('/test.js')
@@ -177,7 +177,7 @@ def test_head_render_javascript_url2():
 
 
 def test_head_render_javascript_url3():
-    """ XHTML namespace unit test - HeadRender - javascript_url - absolute url + relative url """
+    """XHTML namespace unit test - HeadRender - javascript_url - absolute url + relative url"""
     h = html.HeadRenderer('/tmp/static_directory/')
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.javascript_url('/test.js', a=42)
@@ -188,7 +188,7 @@ def test_head_render_javascript_url3():
 
 
 def test_head_render_javascript_url4():
-    """ XHTML namespace unit test - HeadRender - javascript_url - Add twice the same js_url"""
+    """XHTML namespace unit test - HeadRender - javascript_url - Add twice the same js_url"""
     h = html.HeadRenderer('/tmp/static_directory/')
     with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
         h << h.javascript_url('test.js')
@@ -198,66 +198,74 @@ def test_head_render_javascript_url4():
 
 
 def test_head_render_render1():
-    """ XHTML namespace unit test - HeadRender - Render - render only style tag """
+    """XHTML namespace unit test - HeadRender - Render - render only style tag"""
     h = html.HeadRenderer('/tmp/static_directory/')
     h << h.style()
     assert c14n(h.render_top()) == c14n('<head><style></style></head>')
 
 
 def test_head_render_render2():
-    """ XHTML namespace unit test - HeadRender - Render - render only css_url method """
+    """XHTML namespace unit test - HeadRender - Render - render only css_url method"""
     h = html.HeadRenderer('/tmp/static_directory/')
     h << h.css_url('css')
-    assert c14n(h.render_top()) == c14n('<head><link href="/tmp/static_directory/css" type="text/css" rel="stylesheet"/></head>')
+    assert c14n(h.render_top()) == c14n(
+        '<head><link href="/tmp/static_directory/css" type="text/css" rel="stylesheet"/></head>'
+    )
 
 
 def test_head_render_render3():
-    """ XHTML namespace unit test - HeadRender - Render - render only css method """
+    """XHTML namespace unit test - HeadRender - Render - render only css method"""
     h = html.HeadRenderer('/tmp/static_directory/')
     h << h.css('css_test', 'test')
     assert c14n(h.render_top()) == c14n('<head><style data-nagare-css="css_test" type="text/css">test</style></head>')
 
 
 def test_head_render_render4():
-    """ XHTML namespace unit test - HeadRender - Render - call render two times with css_url method"""
+    """XHTML namespace unit test - HeadRender - Render - call render two times with css_url method"""
     h = html.HeadRenderer('/tmp/static_directory/')
     h << h.css_url('css')
     h.render_top()
     renderResult = h.render_top()
     assert not isinstance(renderResult, list)
-    assert c14n(h.render_top()) == c14n('<head><link href="/tmp/static_directory/css" type="text/css" rel="stylesheet"/></head>')
+    assert c14n(h.render_top()) == c14n(
+        '<head><link href="/tmp/static_directory/css" type="text/css" rel="stylesheet"/></head>'
+    )
 
 
 def test_head_render_render5():
-    """ XHTML namespace unit test - HeadRender - Render - render only css method """
+    """XHTML namespace unit test - HeadRender - Render - render only css method"""
     h = html.HeadRenderer('/tmp/static_directory/')
     h << h.css('css_test', 'test')
     assert c14n(h.render_top()) == c14n('<head><style type="text/css" data-nagare-css="css_test">test</style></head>')
 
 
 def test_head_render_render6():
-    """ XHTML namespace unit test - HeadRender - Render - render only javascript_url method """
+    """XHTML namespace unit test - HeadRender - Render - render only javascript_url method"""
     h = html.HeadRenderer('/tmp/static_directory/')
     h << h.javascript_url('test.js')
-    assert c14n(h.render_top()) == c14n('<head><script src="/tmp/static_directory/test.js" type="text/javascript"></script></head>')
+    assert c14n(h.render_top()) == c14n(
+        '<head><script src="/tmp/static_directory/test.js" type="text/javascript"></script></head>'
+    )
 
 
 def test_head_render_render7():
-    """ XHTML namespace unit test - HeadRender - Render - render only string js method """
+    """XHTML namespace unit test - HeadRender - Render - render only string js method"""
     h = html.HeadRenderer('/tmp/static_directory/')
     h << h.javascript('test.js', 'function test() { return True }')
-    assert c14n(h.render_top()) == c14n('<head><script data-nagare-js="test.js" type="text/javascript">function test() { return True }</script></head>')
+    assert c14n(h.render_top()) == c14n(
+        '<head><script data-nagare-js="test.js" type="text/javascript">function test() { return True }</script></head>'
+    )
 
 
 def test_head_render_render8():
-    """ XHTML namespace unit test - HeadRender - Render - render with head """
+    """XHTML namespace unit test - HeadRender - Render - render with head"""
     h = html.HeadRenderer('/tmp/static_directory/')
     h << h.head({'id': 'id'})
     assert c14n(h.render_top()) == c14n('<head id="id"></head>')
 
 
 def test_head_render_render9():
-    """ XHTML namespace unit test - HeadRender - Render - render with head & style """
+    """XHTML namespace unit test - HeadRender - Render - render with head & style"""
     h = html.HeadRenderer('/tmp/static_directory/')
     with h.head({'id': 'id'}):
         h << h.style('test', {'id': 'id'})
@@ -286,4 +294,6 @@ def test_cache_buster():
     assert h.link(rel='stylesheet', href='/abc?foo=bar').get('href') == '/abc?foo=bar'
     assert h.link(rel='stylesheet', href='abc?foo=bar').get('href') == '/root/abc?foo=bar&ver=1.2'
     assert h.link(rel='stylesheet', href='/abc?foo=bar&hello=world').get('href') == '/abc?foo=bar&hello=world'
-    assert h.link(rel='stylesheet', href='abc?foo=bar&hello=world').get('href') == '/root/abc?foo=bar&hello=world&ver=1.2'
+    assert (
+        h.link(rel='stylesheet', href='abc?foo=bar&hello=world').get('href') == '/root/abc?foo=bar&hello=world&ver=1.2'
+    )
