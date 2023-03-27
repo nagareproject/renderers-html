@@ -19,7 +19,6 @@ try:
 except ImportError:
     import urllib.parse as urlparse
 from collections import OrderedDict
-from os import path
 
 from lxml import etree as ET
 from nagare.renderers import xml
@@ -73,7 +72,7 @@ class Url(object):
         - an absolute URL
         """
         if not self.is_url() and (always_relative or not self.is_absolute()):
-            self.parts[2] = path.join(url_prefix or '/', self.parts[2].lstrip('/'))
+            self.parts[2] = url_prefix + '/' + self.parts[2].lstrip('/')
 
         if params:
             params = ['%s=%s' % param for param in reversed(list(params.items()))]
