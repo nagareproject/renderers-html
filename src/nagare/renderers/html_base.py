@@ -72,7 +72,7 @@ class Url(object):
         - an absolute URL
         """
         if not self.is_url() and (always_relative or not self.is_absolute()):
-            self.parts[2] = url_prefix + '/' + self.parts[2].lstrip('/')
+            self.parts[2] = (url_prefix or '').rstrip('/') + '/' + self.parts[2].lstrip('/')
 
         if params:
             params = ['%s=%s' % param for param in reversed(list(params.items()))]
