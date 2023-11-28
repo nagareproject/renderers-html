@@ -131,7 +131,7 @@ class HrefAttribute(Tag):
 
 class Link(HrefAttribute):
     def on_change(self):
-        if self.get('rel', '') in ('icon', 'stylesheet'):
+        if self.get('rel', '') in ('icon', 'mask-icon', 'stylesheet'):
             super(Link, self).on_change()
 
 
