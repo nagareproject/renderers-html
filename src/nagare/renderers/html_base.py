@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2023 Net-ng.
+# Copyright (c) 2008-2024 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -21,6 +21,7 @@ except ImportError:
 from collections import OrderedDict
 
 from lxml import etree as ET
+
 from nagare.renderers import xml
 from nagare.renderers.xml import TagProp
 

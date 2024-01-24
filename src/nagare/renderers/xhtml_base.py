@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2023 Net-ng.
+# Copyright (c) 2008-2024 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -9,4 +9,4 @@
 
 """Legacy module name."""
 
-from .html_base import HeadRenderer, Renderer, Tag, absolute_url  # noqa: F401
+from .html_base import Tag, Renderer, HeadRenderer, absolute_url  # noqa: F401
