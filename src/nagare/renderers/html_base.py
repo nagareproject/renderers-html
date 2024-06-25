@@ -20,6 +20,7 @@ except ImportError:
     import urllib.parse as urlparse
 from collections import OrderedDict
 
+from lxml import html
 from lxml import etree as ET
 
 from nagare.renderers import xml
@@ -91,6 +92,18 @@ absolute_asset_url = absolute_url  # noqa: E305
 
 class Tag(xml.Tag):
     """A html tag."""
+
+    @property
+    def classes(self):
+        return html.Classes(self.attrib)
+
+    @classes.setter
+    def classes(self, classes):
+        value = classes._get_class_value()
+        if value:
+            self.set('class', value)
+        elif self.get('class') is not None:
+            del self.attrib['class']
 
     def tostring(self, method='html', encoding='utf-8', pipeline=True, **kw):
         """Serialize in HTML the tree beginning at this tag.
