@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2024 Net-ng.
+# Copyright (c) 2008-2025 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -10,8 +10,7 @@
 from nagare.renderers import html_base as html
 from nagare.renderers import html5_base as html5
 
-
-RESULT = b'''
+RESULT = b"""
 <html>
     <head>
         <title>A test</title>
@@ -44,7 +43,7 @@ RESULT = b'''
         </table>
     </body>
 </html>
-'''
+"""
 
 
 def test_html():

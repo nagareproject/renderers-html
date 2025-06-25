@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2024 Net-ng.
+# Copyright (c) 2008-2025 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -14,11 +14,12 @@ except ImportError:
 
 import pytest
 from lxml import etree
+
 from nagare.renderers import html_base as html
 
 
 def c14n(node):
-    if not isinstance(node, (str, type(u''))):
+    if not isinstance(node, (str, type(''))):
         node = node.tostring(method='xml').decode('utf-8')
 
     node = etree.fromstring(node).getroottree()

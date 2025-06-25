@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2024 Net-ng.
+# Copyright (c) 2008-2025 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -8,6 +8,7 @@
 # --
 
 import pytest
+
 from nagare.renderers import html_base as html
 
 
@@ -70,16 +71,16 @@ def test_url():
     assert h.head.link(href='/abc').tostring() == b'<link href="/abc">'
     assert h.head.link(href='abc').tostring() == b'<link href="abc">'
 
-    assert h.head.link(rel="stylesheet", href='/abc').get('href') == '/abc'
-    assert h.head.link(rel="stylesheet", href='abc').get('href') == '/abc'
+    assert h.head.link(rel='stylesheet', href='/abc').get('href') == '/abc'
+    assert h.head.link(rel='stylesheet', href='abc').get('href') == '/abc'
 
     h = html.Renderer(static_url='/root')
 
     assert h.head.link(href='/abc').tostring() == b'<link href="/abc">'
     assert h.head.link(href='abc').tostring() == b'<link href="abc">'
 
-    assert h.head.link(rel="stylesheet", href='/abc').get('href') == '/abc'
-    assert h.head.link(rel="stylesheet", href='abc').get('href') == '/root/abc'
+    assert h.head.link(rel='stylesheet', href='/abc').get('href') == '/abc'
+    assert h.head.link(rel='stylesheet', href='abc').get('href') == '/root/abc'
 
     h = html.Renderer()
 

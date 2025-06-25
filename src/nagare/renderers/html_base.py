@@ -1,5 +1,5 @@
 # --
-# Copyright (c) 2008-2024 Net-ng.
+# Copyright (c) 2008-2025 Net-ng.
 # All rights reserved.
 #
 # This software is licensed under the BSD License, as described in
@@ -61,7 +61,7 @@ class Url(object):
         return bool(self.parts[0])
 
     def is_absolute(self):
-        return self.parts[2].startswith('/') or (self.parts[0] == 'data')
+        return self.parts[2].startswith('/') or (self.parts[0] == 'data') or (not self.parts[2] and self.parts[-1])
 
     def absolute(self, url_prefix, always_relative=False, **params):
         """Convert a relative URL of a static content to an absolute one.
@@ -145,7 +145,7 @@ class HrefAttribute(Tag):
 
 class Link(HrefAttribute):
     def on_change(self):
-        if self.get('rel', '') in ('icon', 'mask-icon', 'stylesheet'):
+        if self.get('rel', '') in ('icon', 'mask-icon', 'stylesheet', 'manifest'):
             super(Link, self).on_change()
 
 
