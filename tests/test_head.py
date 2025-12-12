@@ -7,10 +7,7 @@
 # this distribution.
 # --
 
-try:
-    from cStringIO import StringIO as BuffIO
-except ImportError:
-    from io import BytesIO as BuffIO
+from io import BytesIO as BuffIO
 
 import pytest
 from lxml import etree
@@ -19,8 +16,8 @@ from nagare.renderers import html_base as html
 
 
 def c14n(node):
-    if not isinstance(node, (str, type(''))):
-        node = node.tostring(method='xml').decode('utf-8')
+    if not isinstance(node, str):
+        node = node.tostring(method="xml").decode("utf-8")
 
     node = etree.fromstring(node).getroottree()
 
@@ -33,7 +30,7 @@ def c14n(node):
 def test_head1():
     h = html.HeadRenderer()
 
-    assert h.head(h.title('test')).tostring() == b'<head><title>test</title></head>'
+    assert h.head(h.title("test")).tostring() == b"<head><title>test</title></head>"
 
     with pytest.raises(AttributeError):
         h.foo
@@ -42,173 +39,190 @@ def test_head1():
 def test_head2():
     h = html.HeadRenderer()
 
-    assert h.link.tostring() == b'<link>'
-    assert h.link.tostring(method='xml') == b'<link/>'
+    assert h.link.tostring() == b"<link>"
+    assert h.link.tostring(method="xml") == b"<link/>"
 
 
 def test_url():
     h = html.HeadRenderer()
 
-    assert h.link(href='/abc').tostring() == b'<link href="/abc">'
-    assert h.link(href='abc').tostring() == b'<link href="abc">'
+    assert h.link(href="/abc").tostring() == b'<link href="/abc">'
+    assert h.link(href="abc").tostring() == b'<link href="abc">'
 
-    h = html.HeadRenderer(static_url='/root')
+    h = html.HeadRenderer(static_url="/root")
 
-    assert h.link(rel='stylesheet', href='/abc').get('href') == '/abc'
-    assert h.link(rel='stylesheet', href='abc').get('href') == '/root/abc'
+    assert h.link(rel="stylesheet", href="/abc").get("href") == "/abc"
+    assert h.link(rel="stylesheet", href="abc").get("href") == "/root/abc"
 
     h = html.HeadRenderer()
 
-    assert h.script(src='/abc').tostring() == b'<script src="/abc"></script>'
-    assert h.script(src='abc').tostring() == b'<script src="/abc"></script>'
+    assert h.script(src="/abc").tostring() == b'<script src="/abc"></script>'
+    assert h.script(src="abc").tostring() == b'<script src="/abc"></script>'
 
-    h = html.HeadRenderer(static_url='/root')
+    h = html.HeadRenderer(static_url="/root")
 
-    assert h.script(src='/abc').tostring() == b'<script src="/abc"></script>'
-    assert h.script(src='abc').tostring() == b'<script src="/root/abc"></script>'
+    assert h.script(src="/abc").tostring() == b'<script src="/abc"></script>'
+    assert h.script(src="abc").tostring() == b'<script src="/root/abc"></script>'
 
 
 def test_css_js_order():
-    head = html.HeadRenderer('')
+    head = html.HeadRenderer("")
 
     for i in range(10):
-        head.css(str(i), 'style_%d.css' % i, a=42 + i)
+        head.css(str(i), "style_%d.css" % i, a=42 + i)
 
-    result = [(str(i), ('style_%d.css' % i, {'a': 42 + i}, False)) for i in range(10)]
+    result = [(str(i), ("style_%d.css" % i, {"a": 42 + i}, False)) for i in range(10)]
     assert list(head._named_css.items()) == result
 
     for i in range(10):
-        head.css_url('http://example.com/style_%d.css' % i, a=42 + i)
+        head.css_url("http://example.com/style_%d.css" % i, a=42 + i)
 
-    result = [('http://example.com/style_%d.css' % i, ({'a': 42 + i}, False)) for i in range(10)]
+    result = [
+        ("http://example.com/style_%d.css" % i, ({"a": 42 + i}, False))
+        for i in range(10)
+    ]
     assert list(head._css_url.items()) == result
 
     for i in range(10):
-        head.javascript(str(i), 'js_%d.js' % i, a=42 + i)
+        head.javascript(str(i), "js_%d.js" % i, a=42 + i)
 
-    result = [(str(i), ('js_%d.js' % i, {'a': 42 + i}, False)) for i in range(10)]
+    result = [(str(i), ("js_%d.js" % i, {"a": 42 + i}, False)) for i in range(10)]
     assert list(head._named_javascript.items()) == result
 
     for i in range(10):
-        head.javascript_url('http://example.com/js_%d.js' % i, a=42 + i)
+        head.javascript_url("http://example.com/js_%d.js" % i, a=42 + i)
 
-    result = [('http://example.com/js_%d.js' % i, ({'a': 42 + i}, False)) for i in range(10)]
+    result = [
+        ("http://example.com/js_%d.js" % i, ({"a": 42 + i}, False)) for i in range(10)
+    ]
     assert list(head._javascript_url.items()) == result
 
 
 def test_css_js_override():
-    head = html.HeadRenderer('')
+    head = html.HeadRenderer("")
 
-    head.css('css1', 'css1', a=42)
-    head.css('css1', 'css2', b=42)
+    head.css("css1", "css1", a=42)
+    head.css("css1", "css2", b=42)
 
-    assert list(head._named_css.items()) == [('css1', ('css1', {'a': 42}, False))]
+    assert list(head._named_css.items()) == [("css1", ("css1", {"a": 42}, False))]
 
-    head.css_url('http://example.com/style_1.css', a=42)
-    head.css_url('http://example.com/style_1.css', b=42)
+    head.css_url("http://example.com/style_1.css", a=42)
+    head.css_url("http://example.com/style_1.css", b=42)
 
-    assert list(head._css_url.items()) == [('http://example.com/style_1.css', ({'a': 42}, False))]
+    assert list(head._css_url.items()) == [
+        ("http://example.com/style_1.css", ({"a": 42}, False))
+    ]
 
-    head.javascript('js1', 'javascript1', a=42)
-    head.javascript('js1', 'javascript2', b=42)
+    head.javascript("js1", "javascript1", a=42)
+    head.javascript("js1", "javascript2", b=42)
 
-    assert list(head._named_javascript.items()) == [('js1', ('javascript1', {'a': 42}, False))]
+    assert list(head._named_javascript.items()) == [
+        ("js1", ("javascript1", {"a": 42}, False))
+    ]
 
-    head.javascript_url('http://example.com/js_1.js', a=42)
-    head.javascript_url('http://example.com/js_1.js', b=42)
+    head.javascript_url("http://example.com/js_1.js", a=42)
+    head.javascript_url("http://example.com/js_1.js", b=42)
 
-    assert list(head._javascript_url.items()) == [('http://example.com/js_1.js', ({'a': 42}, False))]
+    assert list(head._javascript_url.items()) == [
+        ("http://example.com/js_1.js", ({"a": 42}, False))
+    ]
 
 
 def test_head_render_javascript_css1():
-    h = html.HeadRenderer('/tmp/static_directory')
-    with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
-        h << h.css_url('css')
+    h = html.HeadRenderer("/tmp/static_directory")
+    with h.head({"lang": "lang", "dir": "dir", "id": "id", "profile": "profile"}):
+        h << h.css_url("css")
 
-    assert list(h._css_url.items()) == [('/tmp/static_directory/css', ({}, False))]
+    assert list(h._css_url.items()) == [("/tmp/static_directory/css", ({}, False))]
 
-    h = html.HeadRenderer('/tmp/static_directory', assets_version='1.2')
-    with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
-        h << h.css_url('css')
+    h = html.HeadRenderer("/tmp/static_directory", assets_version="1.2")
+    with h.head({"lang": "lang", "dir": "dir", "id": "id", "profile": "profile"}):
+        h << h.css_url("css")
 
-    assert list(h._css_url.items()) == [('/tmp/static_directory/css?ver=1.2', ({}, False))]
+    assert list(h._css_url.items()) == [
+        ("/tmp/static_directory/css?ver=1.2", ({}, False))
+    ]
 
 
 def test_head_render_javascript_css2():
     """XHTML namespace unit test - HeadRender - css_url - absolute url"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
-        h << h.css_url('/css')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    with h.head({"lang": "lang", "dir": "dir", "id": "id", "profile": "profile"}):
+        h << h.css_url("/css")
 
-    assert list(h._css_url.items()) == [('/css', ({}, False))]
+    assert list(h._css_url.items()) == [("/css", ({}, False))]
 
-    h = html.HeadRenderer('/tmp/static_directory/', assets_version='1.2')
-    with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
-        h << h.css_url('/css')
+    h = html.HeadRenderer("/tmp/static_directory/", assets_version="1.2")
+    with h.head({"lang": "lang", "dir": "dir", "id": "id", "profile": "profile"}):
+        h << h.css_url("/css")
 
-    assert list(h._css_url.items()) == [('/css', ({}, False))]
+    assert list(h._css_url.items()) == [("/css", ({}, False))]
 
 
 def test_head_render_css_url3():
     """XHTML namespace unit test - HeadRender - css_url - absolute url + relative url"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
-        h << h.css_url('/css', a=42)
-        h << h.css_url('css', b=10)
+    h = html.HeadRenderer("/tmp/static_directory/")
+    with h.head({"lang": "lang", "dir": "dir", "id": "id", "profile": "profile"}):
+        h << h.css_url("/css", a=42)
+        h << h.css_url("css", b=10)
 
-    assert h._css_url['/css'] == ({'a': 42}, False)
-    assert h._css_url['/tmp/static_directory/css'] == ({'b': 10}, False)
+    assert h._css_url["/css"] == ({"a": 42}, False)
+    assert h._css_url["/tmp/static_directory/css"] == ({"b": 10}, False)
 
 
 def test_head_render_javascript_url1():
     """XHTML namespace unit test - HeadRender - javascript_url - relative url"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
-        h << h.javascript_url('test.js')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    with h.head({"lang": "lang", "dir": "dir", "id": "id", "profile": "profile"}):
+        h << h.javascript_url("test.js")
 
-    assert list(h._javascript_url.items()) == [('/tmp/static_directory/test.js', ({}, False))]
+    assert list(h._javascript_url.items()) == [
+        ("/tmp/static_directory/test.js", ({}, False))
+    ]
 
 
 def test_head_render_javascript_url2():
     """XHTML namespace unit test - HeadRender - javascript_url - absolute url"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
-        h << h.javascript_url('/test.js')
-    assert list(h._javascript_url.items()) == [('/test.js', ({}, False))]
+    h = html.HeadRenderer("/tmp/static_directory/")
+    with h.head({"lang": "lang", "dir": "dir", "id": "id", "profile": "profile"}):
+        h << h.javascript_url("/test.js")
+    assert list(h._javascript_url.items()) == [("/test.js", ({}, False))]
 
 
 def test_head_render_javascript_url3():
     """XHTML namespace unit test - HeadRender - javascript_url - absolute url + relative url"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
-        h << h.javascript_url('/test.js', a=42)
-        h << h.javascript_url('test.js', b=10)
+    h = html.HeadRenderer("/tmp/static_directory/")
+    with h.head({"lang": "lang", "dir": "dir", "id": "id", "profile": "profile"}):
+        h << h.javascript_url("/test.js", a=42)
+        h << h.javascript_url("test.js", b=10)
 
-    assert h._javascript_url['/test.js'] == ({'a': 42}, False)
-    assert h._javascript_url['/tmp/static_directory/test.js'] == ({'b': 10}, False)
+    assert h._javascript_url["/test.js"] == ({"a": 42}, False)
+    assert h._javascript_url["/tmp/static_directory/test.js"] == ({"b": 10}, False)
 
 
 def test_head_render_javascript_url4():
     """XHTML namespace unit test - HeadRender - javascript_url - Add twice the same js_url"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    with h.head({'lang': 'lang', 'dir': 'dir', 'id': 'id', 'profile': 'profile'}):
-        h << h.javascript_url('test.js')
-        h << h.javascript_url('test.js')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    with h.head({"lang": "lang", "dir": "dir", "id": "id", "profile": "profile"}):
+        h << h.javascript_url("test.js")
+        h << h.javascript_url("test.js")
 
-    assert list(h._javascript_url.items()) == [('/tmp/static_directory/test.js', ({}, False))]
+    assert list(h._javascript_url.items()) == [
+        ("/tmp/static_directory/test.js", ({}, False))
+    ]
 
 
 def test_head_render_render1():
     """XHTML namespace unit test - HeadRender - Render - render only style tag"""
-    h = html.HeadRenderer('/tmp/static_directory/')
+    h = html.HeadRenderer("/tmp/static_directory/")
     h << h.style()
-    assert c14n(h.render_top()) == c14n('<head><style></style></head>')
+    assert c14n(h.render_top()) == c14n("<head><style></style></head>")
 
 
 def test_head_render_render2():
     """XHTML namespace unit test - HeadRender - Render - render only css_url method"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    h << h.css_url('css')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    h << h.css_url("css")
     assert c14n(h.render_top()) == c14n(
         '<head><link href="/tmp/static_directory/css" type="text/css" rel="stylesheet"/></head>'
     )
@@ -216,15 +230,17 @@ def test_head_render_render2():
 
 def test_head_render_render3():
     """XHTML namespace unit test - HeadRender - Render - render only css method"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    h << h.css('css_test', 'test')
-    assert c14n(h.render_top()) == c14n('<head><style data-nagare-css="css_test" type="text/css">test</style></head>')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    h << h.css("css_test", "test")
+    assert c14n(h.render_top()) == c14n(
+        '<head><style data-nagare-css="css_test" type="text/css">test</style></head>'
+    )
 
 
 def test_head_render_render4():
     """XHTML namespace unit test - HeadRender - Render - call render two times with css_url method"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    h << h.css_url('css')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    h << h.css_url("css")
     h.render_top()
     renderResult = h.render_top()
     assert not isinstance(renderResult, list)
@@ -235,15 +251,17 @@ def test_head_render_render4():
 
 def test_head_render_render5():
     """XHTML namespace unit test - HeadRender - Render - render only css method"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    h << h.css('css_test', 'test')
-    assert c14n(h.render_top()) == c14n('<head><style type="text/css" data-nagare-css="css_test">test</style></head>')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    h << h.css("css_test", "test")
+    assert c14n(h.render_top()) == c14n(
+        '<head><style type="text/css" data-nagare-css="css_test">test</style></head>'
+    )
 
 
 def test_head_render_render6():
     """XHTML namespace unit test - HeadRender - Render - render only javascript_url method"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    h << h.javascript_url('test.js')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    h << h.javascript_url("test.js")
     assert c14n(h.render_top()) == c14n(
         '<head><script src="/tmp/static_directory/test.js" type="text/javascript"></script></head>'
     )
@@ -251,8 +269,8 @@ def test_head_render_render6():
 
 def test_head_render_render7():
     """XHTML namespace unit test - HeadRender - Render - render only string js method"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    h << h.javascript('test.js', 'function test() { return True }')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    h << h.javascript("test.js", "function test() { return True }")
     assert c14n(h.render_top()) == c14n(
         '<head><script data-nagare-js="test.js" type="text/javascript">function test() { return True }</script></head>'
     )
@@ -260,41 +278,50 @@ def test_head_render_render7():
 
 def test_head_render_render8():
     """XHTML namespace unit test - HeadRender - Render - render with head"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    h << h.head({'id': 'id'})
+    h = html.HeadRenderer("/tmp/static_directory/")
+    h << h.head({"id": "id"})
     assert c14n(h.render_top()) == c14n('<head id="id"></head>')
 
 
 def test_head_render_render9():
     """XHTML namespace unit test - HeadRender - Render - render with head & style"""
-    h = html.HeadRenderer('/tmp/static_directory/')
-    with h.head({'id': 'id'}):
-        h << h.style('test', {'id': 'id'})
-    assert c14n(h.render_top()) == c14n('<head id="id"><style id="id">test</style></head>')
+    h = html.HeadRenderer("/tmp/static_directory/")
+    with h.head({"id": "id"}):
+        h << h.style("test", {"id": "id"})
+    assert c14n(h.render_top()) == c14n(
+        '<head id="id"><style id="id">test</style></head>'
+    )
 
 
 def test_cache_buster():
-    h = html.HeadRenderer(assets_version='1.2')
+    h = html.HeadRenderer(assets_version="1.2")
 
-    assert h.link(rel='stylesheet', href='/abc').get('href') == '/abc'
-    assert h.link(rel='stylesheet', href='abc').get('href') == '/abc?ver=1.2'
+    assert h.link(rel="stylesheet", href="/abc").get("href") == "/abc"
+    assert h.link(rel="stylesheet", href="abc").get("href") == "/abc?ver=1.2"
 
-    assert h.link(rel='next', href='/abc').get('href') == '/abc'
-    assert h.link(rel='next', href='abc').get('href') == 'abc'
+    assert h.link(rel="next", href="/abc").get("href") == "/abc"
+    assert h.link(rel="next", href="abc").get("href") == "abc"
 
-    h = html.HeadRenderer(static_url='/root', assets_version='1.2')
+    h = html.HeadRenderer(static_url="/root", assets_version="1.2")
 
-    assert h.link(rel='stylesheet', href='/abc').get('href') == '/abc'
-    assert h.link(rel='stylesheet', href='abc').get('href') == '/root/abc?ver=1.2'
+    assert h.link(rel="stylesheet", href="/abc").get("href") == "/abc"
+    assert h.link(rel="stylesheet", href="abc").get("href") == "/root/abc?ver=1.2"
 
-    assert h.link(rel='next', href='/abc').get('href') == '/abc'
-    assert h.link(rel='next', href='abc').get('href') == 'abc'
+    assert h.link(rel="next", href="/abc").get("href") == "/abc"
+    assert h.link(rel="next", href="abc").get("href") == "abc"
 
-    h = html.HeadRenderer(static_url='/root', assets_version='1.2')
+    h = html.HeadRenderer(static_url="/root", assets_version="1.2")
 
-    assert h.link(rel='stylesheet', href='/abc?foo=bar').get('href') == '/abc?foo=bar'
-    assert h.link(rel='stylesheet', href='abc?foo=bar').get('href') == '/root/abc?foo=bar&ver=1.2'
-    assert h.link(rel='stylesheet', href='/abc?foo=bar&hello=world').get('href') == '/abc?foo=bar&hello=world'
+    assert h.link(rel="stylesheet", href="/abc?foo=bar").get("href") == "/abc?foo=bar"
     assert (
-        h.link(rel='stylesheet', href='abc?foo=bar&hello=world').get('href') == '/root/abc?foo=bar&hello=world&ver=1.2'
+        h.link(rel="stylesheet", href="abc?foo=bar").get("href")
+        == "/root/abc?foo=bar&ver=1.2"
+    )
+    assert (
+        h.link(rel="stylesheet", href="/abc?foo=bar&hello=world").get("href")
+        == "/abc?foo=bar&hello=world"
+    )
+    assert (
+        h.link(rel="stylesheet", href="abc?foo=bar&hello=world").get("href")
+        == "/root/abc?foo=bar&hello=world&ver=1.2"
     )

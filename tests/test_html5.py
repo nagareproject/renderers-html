@@ -9,8 +9,8 @@
 
 import pytest
 
-from nagare.renderers import html_base as html
 from nagare.renderers import html5_base as html5
+from nagare.renderers import html_base as html
 
 
 def test_new_tags():
@@ -22,14 +22,14 @@ def test_new_tags():
     h = html5.Renderer()
 
     root = h.section
-    assert root.tostring() == b'<section></section>'
+    assert root.tostring() == b"<section></section>"
 
 
 def test_obsolete_tags():
     h = html.Renderer()
 
     root = h.center
-    assert root.tostring() == b'<center></center>'
+    assert root.tostring() == b"<center></center>"
 
     h = html5.Renderer()
 

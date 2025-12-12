@@ -14,10 +14,7 @@ Having not dependencies to the Nagare framework make it suitable to be used in
 others frameworks.
 """
 
-try:
-    import urlparse
-except ImportError:
-    import urllib.parse as urlparse
+import urllib.parse as urlparse
 from collections import OrderedDict
 
 from lxml import html
@@ -52,7 +49,7 @@ focusattrs = {'accesskey', 'tabindex', 'onfocus', 'onblur'}
 # ---------------------------------------------------------------------------
 
 
-class Url(object):
+class Url:
     def __init__(self, url):
         self.url = url
         self.parts = list(urlparse.urlparse(url))
@@ -115,7 +112,7 @@ class Tag(xml.Tag):
         Return:
           - the HTML
         """
-        return super(Tag, self).tostring(method, encoding, pipeline, **kw)
+        return super().tostring(method, encoding, pipeline, **kw)
 
     def error(self, msg, classes=''):
         """Mark this tag as erroneous.
@@ -136,7 +133,7 @@ class HrefAttribute(Tag):
         return self.renderer.absolute_asset_url(url)
 
     def on_change(self):
-        super(HrefAttribute, self).on_change()
+        super().on_change()
 
         url = self.get(self.ASSET_ATTR, None)
         if url is not None:
@@ -146,7 +143,7 @@ class HrefAttribute(Tag):
 class Link(HrefAttribute):
     def on_change(self):
         if self.get('rel', '') in ('icon', 'mask-icon', 'stylesheet', 'manifest'):
-            super(Link, self).on_change()
+            super().on_change()
 
 
 class SrcAttribute(HrefAttribute):
@@ -158,7 +155,7 @@ Embed = Input = Script = SrcAttribute  # noqa: E305
 
 class Img(SrcAttribute):
     def on_change(self):
-        super(Img, self).on_change()
+        super().on_change()
 
         url = self.get('lowsrc', None)
         if url is not None:
@@ -191,7 +188,7 @@ class HeadRenderer(xml.XmlRenderer):
         The ``HeadRenderer`` keeps track of the javascript and css used by every views,
         to be able to concatenate them into the ``<head>`` section.
         """
-        super(HeadRenderer, self).__init__()
+        super().__init__()
 
         # Directory where the static contents of the application are located
         self.static_url = static_url
@@ -203,10 +200,10 @@ class HeadRenderer(xml.XmlRenderer):
         self._javascript_url = OrderedDict()  # Javascript URLs
 
     def fromfile(self, source, tags_factory=Tag, fragment=False, no_leading_text=False, **kw):
-        return super(HeadRenderer, self).fromfile(source, tags_factory, fragment, no_leading_text, **kw)
+        return super().fromfile(source, tags_factory, fragment, no_leading_text, **kw)
 
     def fromstring(self, text, tags_factory=Tag, fragment=False, no_leading_text=False, **kw):
-        return super(HeadRenderer, self).fromstring(text, tags_factory, fragment, no_leading_text, **kw)
+        return super().fromstring(text, tags_factory, fragment, no_leading_text, **kw)
 
     @staticmethod
     def absolute_url(url, url_prefix, always_relative=False, **params):
@@ -637,7 +634,7 @@ class Renderer(xml.XmlRenderer):
         In:
           - ``parent`` -- parent renderer
         """
-        super(Renderer, self).__init__(parent)
+        super().__init__(parent)
 
         if parent:
             self.head = parent.head
@@ -645,10 +642,10 @@ class Renderer(xml.XmlRenderer):
             self.head = self.head_renderer_factory(**kw)
 
     def fromfile(self, source, tags_factory=Tag, fragment=False, no_leading_text=False, **kw):
-        return super(Renderer, self).fromfile(source, tags_factory, fragment, no_leading_text, **kw)
+        return super().fromfile(source, tags_factory, fragment, no_leading_text, **kw)
 
     def fromstring(self, text, tags_factory=Tag, fragment=False, no_leading_text=False, **kw):
-        return super(Renderer, self).fromstring(text, tags_factory, fragment, no_leading_text, **kw)
+        return super().fromstring(text, tags_factory, fragment, no_leading_text, **kw)
 
     def absolute_url(self, url, url_prefix, always_relative=False, **params):
         return absolute_url(url, url_prefix, always_relative, **params)

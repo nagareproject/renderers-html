@@ -7,8 +7,8 @@
 # this distribution.
 # --
 
-from nagare.renderers import html_base as html
 from nagare.renderers import html5_base as html5
+from nagare.renderers import html_base as html
 
 RESULT = b"""
 <html>
@@ -47,31 +47,31 @@ RESULT = b"""
 
 
 def test_html():
-    t = ((1, 'a'), (2, 'b'), (3, 'c'))
+    t = ((1, "a"), (2, "b"), (3, "c"))
 
     h = html.Renderer()
 
-    h.head << h.head.title('A test')
-    h.head << h.head.script('function() {}')
+    h.head << h.head.title("A test")
+    h.head << h.head.script("function() {}")
 
-    with h.body(onload='javascript:alert()'):
+    with h.body(onload="javascript:alert()"):
         with h.ul:
-            with h.li('Hello'):
+            with h.li("Hello"):
                 pass
             with h.li:
-                h << 'world'
-            h << h.li('foo')
+                h << "world"
+            h << h.li("foo")
 
-        with h.div(class_='foo'):
-            with h.h1('bar'):
-                h << h.i('foo')
+        with h.div(class_="foo"):
+            with h.h1("bar"):
+                h << h.i("foo")
 
         with h.div:
-            h << 'hello'
+            h << "hello"
             for i in range(3):
                 h << i
 
-        with h.table(foo='bar'):
+        with h.table(foo="bar"):
             for row in t:
                 with h.tr:
                     for column in row:
@@ -80,22 +80,22 @@ def test_html():
 
     root = h.html(h.head.head(h.head.root), h.root)
 
-    result = RESULT % b''
-    result = b''.join(line.strip() for line in result.splitlines())
+    result = RESULT % b""
+    result = b"".join(line.strip() for line in result.splitlines())
 
     assert root.tostring() == result
 
 
 def test_html5():
-    t = ((1, 'a'), (2, 'b'), (3, 'c'))
+    t = ((1, "a"), (2, "b"), (3, "c"))
 
     h = html5.Renderer()
 
-    h.head << h.head.title('A test')
-    h.head << h.head.script('function() {}')
+    h.head << h.head.title("A test")
+    h.head << h.head.script("function() {}")
 
-    with h.body(onload='javascript:alert()'):
-        h << h.section(name='name')
+    with h.body(onload="javascript:alert()"):
+        h << h.section(name="name")
         h << h.article
         h << h.aside
         h << h.hgroup
@@ -124,22 +124,22 @@ def test_html5():
         h << h.output
 
         with h.ul:
-            with h.li('Hello'):
+            with h.li("Hello"):
                 pass
             with h.li:
-                h << 'world'
-            h << h.li('foo')
+                h << "world"
+            h << h.li("foo")
 
-        with h.div(class_='foo'):
-            with h.h1('bar'):
-                h << h.i('foo')
+        with h.div(class_="foo"):
+            with h.h1("bar"):
+                h << h.i("foo")
 
         with h.div:
-            h << 'hello'
+            h << "hello"
             for i in range(3):
                 h << i
 
-        with h.table(foo='bar'):
+        with h.table(foo="bar"):
             for row in t:
                 with h.tr:
                     for column in row:
@@ -149,13 +149,13 @@ def test_html5():
     root = h.html(h.head.head(h.head.root), h.root)
 
     result = [
-        b'<%s></%s>' % (tag, tag)
-        for tag in b'article aside hgroup header footer nav figure '
-        b'video audio source embed mark progress meter ruby rt '
-        b'rp wbr canvas command details summary datalist keygen output'.split()
+        b"<%s></%s>" % (tag, tag)
+        for tag in b"article aside hgroup header footer nav figure "
+        b"video audio source embed mark progress meter ruby rt "
+        b"rp wbr canvas command details summary datalist keygen output".split()
     ]
 
-    result = RESULT % (b'<section name="name"></section>' + b''.join(result))
-    result = b''.join(line.strip() for line in result.splitlines())
+    result = RESULT % (b'<section name="name"></section>' + b"".join(result))
+    result = b"".join(line.strip() for line in result.splitlines())
 
     assert root.tostring() == result
